@@ -1,0 +1,16 @@
+# Environments
+.venv
+
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+
+# Only for Development
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+
+
