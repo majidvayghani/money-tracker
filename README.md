@@ -3,7 +3,7 @@ A Django project based on Django Rest Framework with CBV (views,generic,viewset)
 
 ## Features
 
-- **CRUD for Transactions a
+- **CRUD for Transactions**
 
 ## Getting Started
 
