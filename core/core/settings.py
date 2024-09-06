@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 
 LOCAL_APPS = [
     'transactions.apps.TransactionsConfig',
+    'accounts.apps.AccountsConfig',
 ]
 
 THIRD_PARTY_APPS = [
