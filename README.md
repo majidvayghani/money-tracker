@@ -38,7 +38,7 @@ A Django project based on Django Rest Framework with CBV (views,generic,viewset)
     python3 manage.py migrate
     ```
 
-# API Endpoints
+## API Endpoints
 
 The following table summarizes the available API endpoints for managing transactions.
 
@@ -49,6 +49,15 @@ The following table summarizes the available API endpoints for managing transact
 | GET        | `/api/v1/transactions/{id}/` | Retrieve a specific transaction by ID   |
 | PUT        | `/api/v1/transactions/{id}/` | Update an existing transaction          |
 | DELETE     | `/api/v1/transactions/{id}/` | Delete a transaction                    |
+
+The following table summarizes the available API endpoints for registration.
+
+| **Method** | **Endpoint**                | **Description**                         |
+|------------|-----------------------------|-----------------------------------------|
+| POST       | `/api/v1/users/`     | Create a new user                |
+| POST        | `/api/v1/login/`     | Login               |
+
+
 
 ## Here are simple curl commands for GET and POST requests:
 
@@ -70,3 +79,6 @@ curl -X POST http://localhost:8000/api/v1/transactions/ \
   "tag": "Internet"
 }'
 ```
+
+## To Do
+- [ ] Modify the login API code to perform a single database query for all checks.
