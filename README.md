@@ -35,6 +35,8 @@ A Django project based on Django Rest Framework with CBV (views,generic,viewset)
 
 4. **Apply migrations:**
     ```bash
+    python3 manage.py makemigrations
+    
     python3 manage.py migrate
     ```
 
