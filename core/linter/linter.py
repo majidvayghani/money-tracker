@@ -4,6 +4,7 @@ import os
 class FunctionNameLinter(ast.NodeVisitor):
     def __init__(self):
         self.errors = []
+        self.http_verbs = {'get', 'post', 'put', 'delete', 'patch', 'options', 'head'}
 
     def visit_FunctionDef(self, node):
         function_name = node.name
@@ -13,6 +14,17 @@ class FunctionNameLinter(ast.NodeVisitor):
         if function_name[:2] == '__' and function_name[-2:] == '__':
             self.generic_visit(node)
             return
+        
+        # Check if the function has the @api_view decorator
+        if any(isinstance(decorator, ast.Call) and
+               isinstance(decorator.func, ast.Name) and
+               decorator.func.id == 'api_view' for decorator in node.decorator_list):
+            function_name = node.name
+            # Ensure function name contains an HTTP verb
+            if '_' not in function_name:
+                self.errors.append(f"Function '{function_name}' on line {node.lineno} must be multi-part like: create_user, get_transactions, get_transaction_detail.")
+            if not any(verb in function_name.lower() for verb in self.http_verbs):
+                self.errors.append(f"Function '{function_name}' on line {node.lineno} does not include an HTTP verb.")
 
         self.check_function_name(function_name, function_line)
         self.generic_visit(node)
@@ -51,5 +63,5 @@ def lint_file(filepath):
         print(f"{filepath}: {error}")
 
 if __name__ == "__main__":
-    filepath = ''
+    filepath = '/home/Gunner/Desktop/test-pylint/views.py'
     lint_file(filepath)
