@@ -1,4 +1,5 @@
 import ast
+import os
 
 class FunctionNameLinter(ast.NodeVisitor):
     def __init__(self):
@@ -6,11 +7,23 @@ class FunctionNameLinter(ast.NodeVisitor):
 
     def visit_FunctionDef(self, node):
         function_name = node.name
+        function_line = node.lineno
 
-        if not self.is_snake_case(function_name):
-            self.errors.append(f"Function name '{function_name}' on line {node.lineno} is not in snake_case.")
-        # This calls the generic visit method to continue visiting other nodes
+        # Skip special methods (e.g., __init__, __str__)
+        if function_name[:2] == '__' and function_name[-2:] == '__':
+            self.generic_visit(node)
+            return
+
+        self.check_function_name(function_name, function_line)
         self.generic_visit(node)
+
+    def check_function_name(self, function_name, function_line):
+        if len(function_name) < 3:
+            error_mesage = {f"Function name '{function_name} on line {function_line} is to short!"}
+            self.errors.append(error_mesage)
+        elif not self.is_snake_case(function_name):
+            error_mesage = {f"Function name '{function_name}' on line {function_line} is not in snake_case."}
+            self.errors.append(error_mesage)
 
     def is_snake_case(self, name):
         return name == name.lower() and "_" in name
@@ -21,13 +34,17 @@ class FunctionNameLinter(ast.NodeVisitor):
         return self.errors
 
 def lint_file(filepath):
+    if not os.path.exists(filepath):
+        print(f"Error: File '{filepath}' does not exist.")
+        return
+    
     with open(filepath, 'r') as file:
         code = file.read()
     
     linter = FunctionNameLinter()
     errors = linter.lint(code)
     
-    if errors.__len__() == 0:
+    if not errors:
         print('Everything Is Good!')
         
     for error in errors:
