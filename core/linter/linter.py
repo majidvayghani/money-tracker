@@ -28,6 +28,18 @@ class FunctionNameLinter(ast.NodeVisitor):
 
         self.check_function_name(function_name, function_line)
         self.generic_visit(node)
+    
+    # Check if the class name follows CamelCase convention
+    def visit_ClassDef(self, node):
+        class_name = node.name
+
+        if not self.is_camel_case(class_name):
+            self.errors.append(
+                f"Class '{class_name}' on line {node.lineno} does not follow CamelCase convention."
+            )
+
+        self.generic_visit(node)
+
 
     def check_function_name(self, function_name, function_line):
         if len(function_name) < 3:
@@ -39,6 +51,9 @@ class FunctionNameLinter(ast.NodeVisitor):
 
     def is_snake_case(self, name):
         return name == name.lower() and "_" in name
+
+    def is_camel_case(self, name):
+        return name[0].isupper()
 
     def lint(self, code):
         tree = ast.parse(code)
@@ -63,5 +78,5 @@ def lint_file(filepath):
         print(f"{filepath}: {error}")
 
 if __name__ == "__main__":
-    filepath = '/home/Gunner/Desktop/test-pylint/views.py'
+    filepath = ''
     lint_file(filepath)
