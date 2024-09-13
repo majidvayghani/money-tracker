@@ -1,7 +1,7 @@
 import ast
 import os
 
-class FunctionNameLinter(ast.NodeVisitor):
+class CodeStyleChecker(ast.NodeVisitor):
     def __init__(self):
         self.errors = []
         self.http_verbs = {'get', 'post', 'put', 'delete', 'patch', 'options', 'head'}
@@ -43,11 +43,11 @@ class FunctionNameLinter(ast.NodeVisitor):
 
     def check_function_name(self, function_name, function_line):
         if len(function_name) < 3:
-            error_mesage = {f"Function name '{function_name} on line {function_line} is to short!"}
-            self.errors.append(error_mesage)
+            error_message = {f"Function name '{function_name} on line {function_line} is to short!"}
+            self.errors.append(error_message)
         elif not self.is_snake_case(function_name):
-            error_mesage = {f"Function name '{function_name}' on line {function_line} is not in snake_case."}
-            self.errors.append(error_mesage)
+            error_message = {f"Function name '{function_name}' on line {function_line} is not in snake_case."}
+            self.errors.append(error_message)
 
     def is_snake_case(self, name):
         return name == name.lower() and "_" in name
@@ -68,7 +68,7 @@ def lint_file(filepath):
     with open(filepath, 'r') as file:
         code = file.read()
     
-    linter = FunctionNameLinter()
+    linter = CodeStyleChecker()
     errors = linter.lint(code)
     
     if not errors:
