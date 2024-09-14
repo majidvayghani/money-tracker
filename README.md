@@ -39,6 +39,17 @@ A Django project based on Django Rest Framework with CBV (views,generic,viewset)
     
     python3 manage.py migrate
     ```
+## Linting and Code Style
+I have written a simple linter file. In this file, the `CodeStyleChecker` class checks three simple rules to ensure they are followed in my code. The `visit_FunctionDef()` method checks rules 1 and 2, while the `visit_ClassDef()` method checks rule 3. For simplicity, you can specify which files the linter should analyze at the beginning.
+
+**Rule 1:** Function names should contain only lowercase letters and be longer than 2 characters.
+
+**Rule 2:** Functions used in view files for APIs should have names that are at least two parts, separated by underscores, and must include HTTP verbs in their names.
+
+**Rule 3:** Class names must start with an uppercase letter.
+
+### How to run the linter
+Simply execute the `run_linter.py` file, which is a Python script. This script will run on all files within the project folder that are listed in the 'TARGET_FILES' list. If any files do not adhere to the rules, the details will be 'log_filename', and finally, the log will be printed as output.
 
 ## API Endpoints
 
@@ -56,8 +67,8 @@ The following table summarizes the available API endpoints for registration.
 
 | **Method** | **Endpoint**                | **Description**                         |
 |------------|-----------------------------|-----------------------------------------|
-| POST       | `/api/v1/users/`     | Create a new user                |
-| POST        | `/api/v1/login/`     | Login               |
+| POST       | `/api/v1/auth/register/`     | Create a new user                |
+| POST        | `/api/v1/auth/login/`       | Login                            |
 
 
 
