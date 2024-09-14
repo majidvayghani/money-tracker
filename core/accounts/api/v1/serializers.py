@@ -2,7 +2,7 @@
 from rest_framework import serializers 
 from accounts.models import CustomUser 
   
-class UserSerializer(serializers.ModelSerializer):
+class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)  # Ensure that the password is excluded from all response data
     
     class Meta: 

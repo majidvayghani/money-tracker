@@ -5,13 +5,13 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 
 from accounts.models import CustomUser
-from .serializers import UserSerializer, LoginSerializer
+from .serializers import RegisterSerializer, LoginSerializer
 
 User = get_user_model()
 
 @api_view(['POST'])
 def create_user(request):
-    serializer = UserSerializer(data=request.data)
+    serializer = RegisterSerializer(data=request.data)
 
     if serializer.is_valid():
         try:
