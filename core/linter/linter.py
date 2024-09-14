@@ -1,5 +1,5 @@
 import ast
-import os
+import os, sys
 
 class CodeStyleChecker(ast.NodeVisitor):
     def __init__(self):
@@ -78,5 +78,9 @@ def lint_file(filepath):
         print(f"{filepath}: {error}")
 
 if __name__ == "__main__":
-    filepath = ''
-    lint_file(filepath)
+    if len(sys.argv) < 2:
+        print("Usage: python linter.py <file1> <file2> ...")
+        sys.exit(1)
+
+    for filepath in sys.argv[1:]:
+        lint_file(filepath)
