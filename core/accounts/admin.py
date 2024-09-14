@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import CustomUser
+from .models import User
 
 class CustomUserAdmin(UserAdmin):
-    model = CustomUser
+    model = User
     list_display = ("email", "is_staff", "is_active",)
     list_filter =  ("email", "is_staff", "is_active",)
     search_fields = ('email',)
@@ -20,4 +20,4 @@ class CustomUserAdmin(UserAdmin):
     )
 
 
-admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(User, CustomUserAdmin)

@@ -4,10 +4,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
 
-from accounts.models import CustomUser
 from .serializers import RegisterSerializer, LoginSerializer
 
-User = get_user_model()
+user = get_user_model()
 
 @api_view(['POST'])
 def create_user(request):
@@ -15,7 +14,7 @@ def create_user(request):
 
     if serializer.is_valid():
         try:
-            CustomUser.objects.create_user(
+            user.objects.create_user(
                 email = serializer.validated_data['email'],
                 password = serializer.validated_data['password']
             )
@@ -36,7 +35,7 @@ def login_user(request):
 
         try:
             # get the user from the database
-            user = User.objects.get(email=email)
+            user = user.objects.get(email=email)
 
             if not user.is_active:
                 return Response({"error": "Account is inactive."}, status=status.HTTP_403_FORBIDDEN)
@@ -50,7 +49,7 @@ def login_user(request):
                 # If the password is incorrect
                 return Response({"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
-        except User.DoesNotExist:
+        except user.DoesNotExist:
             return Response({"error": "User does not exist"}, status=status.HTTP_401_UNAUTHORIZED)
 
     # If validation fails (e.g., missing or malformed data)
