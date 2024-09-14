@@ -11,16 +11,19 @@ User = get_user_model()
 
 @api_view(['POST'])
 def create_user(request):
-    if request.method == 'POST':
-        serializer = UserSerializer(data=request.data)
+    serializer = UserSerializer(data=request.data)
 
     if serializer.is_valid():
-        CustomUser.objects.create_user(
-            email = serializer.validated_data['email'],
-            password = serializer.validated_data['password']
-        )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+        try:
+            CustomUser.objects.create_user(
+                email = serializer.validated_data['email'],
+                password = serializer.validated_data['password']
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as er:
+            return Response({"error": f"Failed to create user: {str(er)}"}, status=status.HTTP_400_BAD_REQUEST)
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
