@@ -13,10 +13,17 @@ def create_user(request):
     serializer = RegisterSerializer(data=request.data)
 
     if serializer.is_valid():
+        email = serializer.validated_data['email']
+        password = serializer.validated_data['password']
+        password1 = serializer.validated_data['password1']
+        
         try:
+            if password != password1:
+                return Response({'error': 'password dosent matched!'}, status=status.HTTP_400_BAD_REQUEST)
+            
             user.objects.create_user(
-                email = serializer.validated_data['email'],
-                password = serializer.validated_data['password']
+                email = email,
+                password = password
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 

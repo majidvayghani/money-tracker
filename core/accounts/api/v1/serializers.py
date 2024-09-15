@@ -4,12 +4,11 @@ from accounts.models import User
   
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)  # Ensure that the password is excluded from all response data
-    
+    password1 = serializers.CharField(write_only=True)  # Ensure that the password is excluded from all response data
+
     class Meta: 
         model = User
-        fields = ['id', 'email','password', 'is_active', 'is_staff']
-
-        read_only_fields = ('is_active', 'is_staff')
+        fields = ['email','password', 'password1']
 
 
 class LoginSerializer(serializers.Serializer):
