@@ -10,6 +10,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ['email','password', 'password1']
 
+    def validate(self, attrs):
+        if attrs.get("password") != attrs.get("password1"):
+            raise serializers.ValidationError({'error' : 'passwordd dosent match!'})
+        
+        return super().validate(attrs)
+    
+    def create(self, validated_data):
+        validated_data.pop('password1')
+        return User.objects.create_user(**validated_data)
+
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

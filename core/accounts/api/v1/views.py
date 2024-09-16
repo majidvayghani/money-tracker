@@ -6,22 +6,22 @@ from django.contrib.auth import get_user_model
 
 from .serializers import RegisterSerializer, LoginSerializer
 
-user = get_user_model()
+User = get_user_model()
 
 @api_view(['POST'])
-def create_user(request):
+def create_user_v1(request):
     serializer = RegisterSerializer(data=request.data)
 
     if serializer.is_valid():
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
         password1 = serializer.validated_data['password1']
-        
+
         try:
             if password != password1:
                 return Response({'error': 'password dosent matched!'}, status=status.HTTP_400_BAD_REQUEST)
             
-            user.objects.create_user(
+            User.objects.create_user(
                 email = email,
                 password = password
             )
@@ -33,7 +33,21 @@ def create_user(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-def login_user(request):
+def create_user(request):
+    serializer = RegisterSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        try: 
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as er:
+            return Response({"error": f"Failed to create user: {str(er)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def login_user_v1(request):
     serializer = LoginSerializer(data=request.data)
 
     if serializer.is_valid():
@@ -42,7 +56,7 @@ def login_user(request):
 
         try:
             # get the user from the database
-            user = user.objects.get(email=email)
+            user = User.objects.get(email=email)
 
             if not user.is_active:
                 return Response({"error": "Account is inactive."}, status=status.HTTP_403_FORBIDDEN)
