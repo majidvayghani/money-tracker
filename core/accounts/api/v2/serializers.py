@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import authenticate
 
 
-class AuthTokenSerializer(serializers.Serializer):
+class LoginAuthTokenSerializer(serializers.Serializer):
     email = serializers.CharField(
         label=_("Email"),
         write_only=True
