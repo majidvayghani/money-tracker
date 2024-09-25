@@ -3,6 +3,14 @@ from rest_framework import serializers
 from accounts.models import User
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
 
 
 class LoginAuthTokenSerializer(serializers.Serializer):
