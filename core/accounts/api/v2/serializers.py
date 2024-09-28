@@ -8,12 +8,14 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True) 
+    
     class Meta:
         model = User
         fields = "__all__"
 
 
-class LoginAuthTokenSerializer(serializers.Serializer):
+class SigninAuthTokenSerializer(serializers.Serializer):
     email = serializers.CharField(
         label=_("Email"),
         write_only=True

@@ -7,38 +7,35 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth import get_user_model
 
-from .serializers import LoginAuthTokenSerializer, UserProfileSerializer
+from .serializers import SigninAuthTokenSerializer, UserProfileSerializer
 
 User = get_user_model()
 
-class LoginAuthToken(ObtainAuthToken):
-    serializer_class = LoginAuthTokenSerializer
-
+class SigninAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                           context={'request': request})
+        serializer = SigninAuthTokenSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
         return Response({
             'token': token.key,
-            'user_id': user.pk,
-            'email': user.email
+            'email': user.email,
+            'created': created
         })
-    
-    
-class LogoutView(APIView):
+
+
+class UserProfileAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = UserProfileSerializer(user)
+        return Response(serializer.data)
+
+class SignoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         # Delete the user's token
         request.user.auth_token.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
-
-class UserProfileView(generics.RetrieveAPIView):
-    serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        return self.request.user

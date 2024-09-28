@@ -1,9 +1,9 @@
 from django.urls import path
 
-from . import views
+from .views import SigninAuthToken, UserProfileAPIView, SignoutAPIView
 
 urlpatterns = [
-    path('login/', views.LoginAuthToken.as_view(), name='token-login'),
-    path('profile/', views.UserProfileView.as_view(), name='user-profile'),
-    path('logout/', views.LogoutView.as_view(), name='api-logout'),
+    path('signin/', SigninAuthToken.as_view(), name='signin'),
+    path('profile/', UserProfileAPIView.as_view(), name='profile'),
+    path('signout/', SignoutAPIView.as_view(), name='signout'),
 ]
