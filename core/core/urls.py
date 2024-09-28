@@ -17,12 +17,14 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    # Django routes
     path('admin/', admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
 
-    path('api/v1/', include('transactions.api.v1.urls'), name = 'transaction_api'),
+    # API routes
+    path('api/v1/', include('transactions.api.v1.urls'), name = 'transaction_api/v1'),
     path('api/v1/', include('accounts.api.v1.urls'), name = 'account_api/v1'),
 
-    path('api/v2/', include('accounts.api.v2.urls'), name = 'account_api/v2')
-
+    path('api/v2/', include('accounts.api.v2.urls'), name = 'account_api/v2'),
+    path('api/v2/', include('transactions.api.v2.urls'), name = 'account_api/v2')
 ]
