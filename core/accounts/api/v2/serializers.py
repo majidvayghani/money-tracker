@@ -1,4 +1,3 @@
-
 from rest_framework import serializers 
 from accounts.models import User
 from django.utils.translation import gettext_lazy as _
@@ -7,13 +6,16 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True) 
-    
+class SignupSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
-        fields = "__all__"
-
+        fields = ['email', 'first_name', 'last_name', 'password']
+    
+    # create_user is a method provided by the User model's manager (objects) in Django's authentication system
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
 
 class SigninAuthTokenSerializer(serializers.Serializer):
     email = serializers.CharField(
@@ -51,3 +53,10 @@ class SigninAuthTokenSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+class UserProfileSerializer(serializers.ModelSerializer):    
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'is_active', 'updated_at']
+
+        read_only_fields = ['is_active', 'updated_at']
