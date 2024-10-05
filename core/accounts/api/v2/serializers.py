@@ -3,6 +3,7 @@ from accounts.models import User
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
+import re
 
 User = get_user_model()
 
@@ -12,6 +13,30 @@ class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name', 'password']
+    
+    
+    def validate_password(self, value):
+        # Password length validation
+        if len(value) < 8:
+            raise serializers.ValidationError("Password must be at least 8 characters long.")
+        
+        # Must include at least one digit
+        if not re.search(r'\d', value):
+            raise serializers.ValidationError("Password must contain at least one number.")
+        
+        # Must include at least one uppercase letter
+        if not re.search(r'[A-Z]', value):
+            raise serializers.ValidationError("Password must contain at least one uppercase letter.")
+        
+        # Must include at least one lowercase letter
+        if not re.search(r'[a-z]', value):
+            raise serializers.ValidationError("Password must contain at least one lowercase letter.")
+        
+        # Must include at least one special character
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', value):
+            raise serializers.ValidationError("Password must contain at least one special character.")
+        
+        return value
     
     # create_user is a method provided by the User model's manager (objects) in Django's authentication system
     def create(self, validated_data):
