@@ -82,6 +82,6 @@ class SigninAuthTokenSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):    
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'is_active', 'updated_at']
+        fields = ['email', 'first_name', 'last_name', 'is_active']
 
-        read_only_fields = ['is_active', 'updated_at']
+        read_only_fields = ['is_active']
