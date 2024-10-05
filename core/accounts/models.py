@@ -20,6 +20,7 @@ class User (AbstractBaseUser, PermissionsMixin, Model):
     objects = UserManager()
 
     def __str__(self):
+        # return str(self._id)
         return self.email
     
     @classmethod
@@ -27,5 +28,15 @@ class User (AbstractBaseUser, PermissionsMixin, Model):
         try:
             user = cls.objects.get(email=email)
             return user
+        except cls.DoesNotExist:
+            return None
+        
+
+    
+    @classmethod
+    def get_user_id_by_email(cls, email):
+        try:
+            user = cls.get_user_by_email(email)
+            return user._id
         except cls.DoesNotExist:
             return None
