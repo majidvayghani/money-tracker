@@ -1,0 +1,150 @@
+openapi: 3.0.3
+info:
+  title: ...
+  description: ...
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api
+
+
+paths:
+
+  /v2/users/signup:
+    post:
+      tags:
+        - user
+      description: Creates User with Email as username
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signup'
+              
+      responses:
+        '200':
+          description: Successful request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Signup' 
+                
+        '400':
+          description: exceptions must derive from BaseException
+              
+  /v2/users/login:
+    post:
+      tags:
+        - user
+      description: 'Logs user into the system'
+      parameters:
+        - name: username
+          in: query
+          description: The user name for login
+          required: false
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password for login in clear text
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful login
+          headers:
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Login successful."
+        '400':
+          description: Invalid username/password supplied
+          
+  /v2/users/logout:
+    post:
+      tags:
+        - user
+      description: "Logout the user by sending the token in the Authorization header as `Token <token>`"
+      security:
+        - TokenAuth: [key]  # Apply TokenAuth for this endpoint
+      responses:
+        '200':
+          description: "Successfully logged out"
+        '401':
+          description: "Unauthorized. Invalid or missing token."
+
+  /v2/users/profile:
+    get:
+      tags:
+        - user
+      description: "Get user by Authorization Token"
+      parameters:
+        - in: header
+          name: Authorization
+          description: 'ouath v2 token'
+          required: true
+          schema:
+            type: string
+          example: "Token <token>"
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'          
+
+
+components:
+  securitySchemes:
+    TokenAuth:  # Define Token Authentication scheme
+      type: http
+      scheme: bearer
+      bearerFormat: Token  # This can be "Token" or any other format you're using for your token.
+
+  schemas:
+    Profile:
+      type: object
+      properties:
+        email:
+          type: string
+          example: mjvayghani@gmail.com
+        first_name:
+          type: string
+          example: Majid
+        last_name:
+          type: string
+          example: Vayghani
+        is_active:
+          type: boolean
+          description: User Status
+          example: true
+  
+    Signup:
+      type: object
+      properties:
+        email:
+          type: string
+          example: mjvayghani@gmail.com
+        first_name:
+          type: string
+          example: Majid
+        last_name:
+          type: string
+          example: Vayghani
+
+  
+  
+  
+      
+      
+      
