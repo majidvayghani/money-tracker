@@ -4,9 +4,9 @@ from transactions.models import Transaction
 class TransactionSerializer(serializers.ModelSerializer): 
     class Meta: 
         model = Transaction 
-        fields = ['amount','description', 'category', 'created_at', 'updated_at']
+        fields = ['amount','description', 'category', 'created_at', 'deleted_at', '_user']
 
-        read_only_fields = ['created_at', 'updated_at']
+        read_only_fields = ['_user', 'created_at', 'deleted_at']
 
     def validate_amount(self, value):
         """validation methods"""
