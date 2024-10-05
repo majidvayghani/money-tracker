@@ -2,6 +2,7 @@ import pytest
 
 # ToDO: Using a simple factory function or module to generate payload objects
 
+
 @pytest.mark.django_db  
 def test_signup_success(api_client) -> None:  
     """  
@@ -53,4 +54,60 @@ def test_signup_failure_duplicate_email(api_client) -> None:
     """
     assert response2.data['email'][0] == "user with this email already exists."
     assert response2.data['email'][0].code == 'unique'
+
+@pytest.mark.django_db  
+def test_signup_failure_empty_password(api_client) -> None:  
+    """
+    Test the Signup API. failure with password that does not meet the requirements.
+    calling signup endpoint having no password or less than 8 characters
+    """
     
+    payload = {
+        "email" : "test@test.com",
+        "password" : "",
+        "first_name" : "first_name",
+        "last_name" : "last_name"
+    }
+  
+    url = 'http://127.0.0.1:8000/api/v2/users/signup'
+
+    response = api_client.post(url, data=payload, format="json")
+
+    assert response.status_code == 400
+    assert response.data['password'][0] == "Password must be at least 8 characters long"
+
+@pytest.mark.django_db  
+def test_signup_failure_invalid_password(api_client) -> None:  
+    """
+    Test the Signup API. failure with password that does not meet the requirements.
+    requirement 1: password has at least 1 number
+    requirement 2: password has at least 1 uppercase letter
+    requirement 3: password has at least 1 lowercase letter
+    requirement 4: password has at least 1 special character
+    """
+    
+    payload = {
+        "email" : "test@test.com",
+        "password" : "123eR6ff78",
+        "first_name" : "first_name",
+        "last_name" : "last_name"
+    }
+  
+    url = 'http://127.0.0.1:8000/api/v2/users/signup'
+
+    response = api_client.post(url, data=payload, format="json")
+
+    assert response.status_code == 400
+
+    value = response.data['password'][0]
+    
+    match value:
+            case "Password must contain at least one number.":
+                assert value == "Password must contain at least one number."
+            case "Password must contain at least one uppercase letter.":
+                assert value == "Password must contain at least one uppercase letter."
+            case "Password must contain at least one lowercase letter.":
+                assert value == "Password must contain at least one lowercase letter."
+            case "Password must contain at least one special character.":
+                assert value == "Password must contain at least one special character."
+
