@@ -18,6 +18,7 @@ class SignupAPIview(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        print("\n\n\n\n\n **************** errors: ", serializer.errors, "\n\n\n\n\n ****************")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SigninAuthToken(ObtainAuthToken):

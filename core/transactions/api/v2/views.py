@@ -13,7 +13,7 @@ User = get_user_model()
 
 class TransactionDetail(APIView):
     """
-        Retrive, Update or Delete a transaction
+        Retrieve, Update or Delete a transaction
     """
     permission_classes = [IsAuthenticated]
 
@@ -33,7 +33,7 @@ class TransactionDetail(APIView):
         transaction = self.get_object(pk)
         serializer = TransactionSerializer(transaction)        
 
-        # ToDo: cahnge permission
+        # ToDo: change permission
         if User.get_user_id_by_email(request.user) != serializer.data['_user']:
             return Response(status=status.HTTP_403_FORBIDDEN)
         
@@ -52,7 +52,6 @@ class TransactionDetail(APIView):
     
     def delete(self, request, pk):
         transaction = self.get_object(pk)
-        print("\n\n\n ***** transaction", vars(transaction), "\n\n\n\n *****")
         # it's not a good idea because an attacker can find the ID pattern.
         if (transaction.deleted_at != None):
             return Response({"message": "transaction is already deleted"}, status=status.HTTP_200_OK)
