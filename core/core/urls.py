@@ -18,6 +18,7 @@ from django.urls import path, include
 
 urlpatterns = [
     # Django routes
+    path('ping', include('health.urls'), name = 'health_ping'),
     path('admin/', admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
 
