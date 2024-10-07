@@ -8,46 +8,24 @@ from .serializers import RegisterSerializer, LoginSerializer
 
 User = get_user_model()
 
-@api_view(['POST'])
-def create_user_v1(request):
-    serializer = RegisterSerializer(data=request.data)
 
+def create_user(data):
+    serializer = RegisterSerializer(data=data)
     if serializer.is_valid():
-        email = serializer.validated_data['email']
-        password = serializer.validated_data['password']
-        password1 = serializer.validated_data['password1']
-
-        try:
-            if password != password1:
-                return Response({'error': 'password dosent matched!'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            User.objects.create_user(
-                email = email,
-                password = password
-            )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        except Exception as er:
-            return Response({"error": f"Failed to create user: {str(er)}"}, status=status.HTTP_400_BAD_REQUEST)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return serializer.data
+    raise serializer.errors
 
 @api_view(['POST'])
-def create_user(request):
-    serializer = RegisterSerializer(data=request.data)
+def signup(request):
+    try: 
+        data = create_user(request.data)
+        return Response(data, status=status.HTTP_201_CREATED)
+    except Exception as er:
+        return Response({"error": str(er)}, status=status.HTTP_400_BAD_REQUEST)
     
-    if serializer.is_valid():
-        try: 
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        except Exception as er:
-            return Response({"error": f"Failed to create user: {str(er)}"}, status=status.HTTP_400_BAD_REQUEST)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 @api_view(['POST'])
-def login_user(request):
+def signin(request):
     serializer = LoginSerializer(data=request.data)
 
     if serializer.is_valid():
