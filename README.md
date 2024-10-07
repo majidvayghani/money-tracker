@@ -68,7 +68,7 @@ The following table summarizes the available API endpoints for registration.
 | **Method** | **Endpoint**                | **Description**                         |
 |------------|-----------------------------|-----------------------------------------|
 | POST       | `/api/v1/auth/register/`     | Create a new user                |
-| POST        | `/api/v1/auth/login/`       | Login                            |
+| POST        | `/api/v1/auth/signin/`       | signin                            |
 
 
 
@@ -94,4 +94,6 @@ curl -X POST http://localhost:8000/api/v1/transactions/ \
 ```
 
 ## To Do
-- [ ] Modify the login API code to perform a single database query for all checks.
+- [ ] Modify the signIn API code to perform a single database query for all checks.
+- [ ] Generate HTML version of swagger api doc `redocly build-docs my-swagger.yml -o docs.html`
+- [ ] How to run unit tests and integration tests
