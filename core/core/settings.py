@@ -25,8 +25,6 @@ SECRET_KEY = 'django-insecure-r#cx$absa&7ve%#27$tufrb94r*5!!e1w&-4x$^1c$1a!i7%1i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1"]
-
 LOCAL_APPS = [
     'transactions.apps.TransactionsConfig',
     'accounts.apps.AccountsConfig',
@@ -35,6 +33,7 @@ LOCAL_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
+    'health'
 ]
 
 
