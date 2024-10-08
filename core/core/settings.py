@@ -25,6 +25,8 @@ SECRET_KEY = 'django-insecure-r#cx$absa&7ve%#27$tufrb94r*5!!e1w&-4x$^1c$1a!i7%1i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+
 LOCAL_APPS = [
     'transactions.apps.TransactionsConfig',
     'accounts.apps.AccountsConfig',
@@ -142,4 +144,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
     ]
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "core"
+    }
 }
