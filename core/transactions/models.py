@@ -15,11 +15,3 @@ class Transaction(Model):
 
     def __str__(self):
         return f'{self.category} - {self.amount}'
-    
-    @classmethod
-    def get_transaction_by_id(cls, id):
-        try:
-            transaction = cls.objects.get(id=id)
-            return transaction
-        except cls.DoesNotExist:
-            return None
