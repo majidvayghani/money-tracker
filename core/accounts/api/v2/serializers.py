@@ -2,17 +2,15 @@ from rest_framework import serializers
 from accounts.models import User
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import authenticate
-from django.contrib.auth import get_user_model
+from ...models import User, Profile
 import re
-
-User = get_user_model()
 
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'password']
+        fields = ['email', 'password']
     
     
     def validate_password(self, value):
@@ -79,9 +77,24 @@ class SigninAuthTokenSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
 
-class UserProfileSerializer(serializers.ModelSerializer):    
+class UserSerializer(serializers.ModelSerializer):    
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'is_active']
+        fields = ['email', 'is_active']
 
         read_only_fields = ['is_active']
+
+class ProfileSerializer(serializers.ModelSerializer):    
+    class Meta:
+        model = Profile
+        fields = ['first_name', 'last_name']
+        
+        read_only_fields = ['is_active', 'email', 'is_staff']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['email'] = instance._user.email 
+        representation['is_active'] = instance._user.is_active
+        representation['is_staff'] = instance._user.is_staff
+
+        return representation

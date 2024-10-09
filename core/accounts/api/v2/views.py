@@ -6,8 +6,10 @@ from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth import get_user_model
+from rest_framework.exceptions import NotFound
 
-from .serializers import SigninAuthTokenSerializer, SignupSerializer, UserProfileSerializer
+from ...models import Profile
+from .serializers import SigninAuthTokenSerializer, SignupSerializer, UserSerializer, ProfileSerializer
 
 User = get_user_model()
 
@@ -18,19 +20,21 @@ class SignupAPIview(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        print("\n\n\n\n\n **************** errors: ", serializer.errors, "\n\n\n\n\n ****************")
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SigninAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         user = User.get_user_by_email(request.data['email'])
-        if user.deleted_at != None:
-            return Response({'message' : 'User is Deleted!'}, status=status.HTTP_204_NO_CONTENT)
+        if (user is None) or (user.deleted_at):
+            return Response({'message': 'User not found!'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = SigninAuthTokenSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
+
+        # ToDo: send user_id to Token
+        user_email = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user_email)
         return Response({
             'token': token.key,
             'email': user.email,
@@ -49,23 +53,45 @@ class UserGetOrUpdateOrDeleteAPIView(APIView):
 
     def get(self, request):
         user = request.user
-        serializer = UserProfileSerializer(user)
-        return Response(serializer.data)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     def put(self, request):
         user = request.user
-        serializer = UserProfileSerializer(user, data=request.data)
+        serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
-        user = User.get_user_by_email(request.user)
-        if user:
-            user.deleted_at = timezone.now()
-            request.user.auth_token.delete()
-            user.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"message": "User cannot be deleted"}, status=status.HTTP_403_FORBIDDEN)
+
+class ProfileGetOrUpdateOrDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        user = self.request.user
+        try:
+            return Profile.objects.get(_user=user)
+        except Profile.DoesNotExist:
+            raise NotFound("Profile not found for the current user.")
+
+    def get(self, request):
+        profile = self.get_object()
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        profile = self.get_object()
+        serializer = ProfileSerializer(profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        profile = self.get_object()  # Get the user's profile
+        profile.delete()  # Delete the profile
+        return Response(status=status.HTTP_204_NO_CONTENT)
