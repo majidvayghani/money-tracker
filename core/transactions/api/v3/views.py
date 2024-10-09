@@ -25,9 +25,10 @@ class TransactionDetail(APIView):
             object can be any of project models
         """
         if object.deleted_at is None:
-            return object
-
-        raise NotFound(detail="Object is already deleted(soft!).")
+            return False
+        
+        # transaction is deleted
+        return True
         
     def get_object_from_db(self, transaction_id, key):
         """
@@ -36,11 +37,12 @@ class TransactionDetail(APIView):
         try:
             transaction = Transaction.objects.get(pk=transaction_id)
             if self.is_deleted(transaction):
+                # Return a 404 response if the transaction is deleted
+                raise NotFound(detail="Transaction not found.")
+                
+            else:
                 cache.set(key, transaction)
                 return transaction
-            else:
-                # Return a 404 response if the transaction is not found
-                raise NotFound(detail="Transaction not found.")
             
         except Transaction.DoesNotExist:
             raise NotFound(detail="Transaction not found.")
@@ -62,7 +64,7 @@ class TransactionDetail(APIView):
         transaction = self.get_object_from_cache(key)
 
         if transaction is not None:
-            serializer = TransactionSerializer(transaction)
+            serializer = TransactionSerializer(transaction, context={'origin': 'cache'})
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
         else:
             """
@@ -75,7 +77,7 @@ class TransactionDetail(APIView):
         # ToDo: create a method for this
         # if User.get_user_id_by_email(request.user) != serializer.data['_user']:
         #     return Response(status=status.HTTP_403_FORBIDDEN)
-        
+
     def post(self, request):
         serializer = TransactionSerializer(data=request.data, context={'user': request.user})
 
@@ -87,13 +89,18 @@ class TransactionDetail(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
+    def delete(self, request, pk, format=None):
+        """
+            First retrieve the transaction from cache or database, then mark it as deleted by setting `deleted_at`.
+        """
         key = generator(request.user._id, pk)
         transaction = self.get_object_from_cache(key)
-        if transaction.deleted_at is None:
-            transaction.deleted_at = timezone.now()
-            transaction.save()
-            cache.delete(key)
-            return Response({"message": "transaction is deleted(soft!)"}, status=status.HTTP_202_ACCEPTED)
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        if transaction is None:
+            transaction = self.get_object_from_db(pk, key)
+
+        transaction.deleted_at = timezone.now()
+        transaction.save()
+        cache.delete(key)
+        
+        return Response({"message": "transaction is deleted(soft!)"}, status=status.HTTP_202_ACCEPTED)
