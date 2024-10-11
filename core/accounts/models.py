@@ -60,4 +60,4 @@ class Profile(Model):
     last_name = models.CharField(max_length=125, null=False, default='last_name')
 
     def __str__(self):
-        return f"{self._user.email}'s Profile"
+        return self._user.email
