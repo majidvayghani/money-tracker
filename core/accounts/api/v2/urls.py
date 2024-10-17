@@ -9,5 +9,4 @@ urlpatterns = [
     path('user', UserGetOrUpdateOrDeleteAPIView.as_view(), name='user'),
     path('signout', SignoutAPIView.as_view(), name='signout'),
     path('profile', ProfileGetOrUpdateOrDeleteAPIView.as_view(), name='profile'),
-
 ]
