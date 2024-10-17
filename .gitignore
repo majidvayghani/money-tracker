@@ -16,4 +16,6 @@ db.sqlite3
 # vscodes
 .vscode
 
+# settings
+**/settings/.env
 
