@@ -23,13 +23,9 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls")),
 
     # API routes
-    path('api/v1/users/', include('accounts.api.v1.urls'), name = 'account_api_v1'),
+    path('api/v1/', include('accounts.api.v1.urls'), name = 'account_api_v1'),
     path('api/v1/transactions/', include('transactions.api.v1.urls'), name = 'transaction_api_v1'),
 
-    path('api/v2/users/', include('accounts.api.v2.urls'), name = 'account_api_v2'),
+    path('api/v2/', include('accounts.api.v2.urls'), name = 'account_api_v2'),
     path('api/v2/transactions/', include('transactions.api.v2.urls'), name = 'transaction_api_v2'),
-
-    # path('api/v3/users/', include('accounts.api.v3.urls'), name = 'account_api_v3'),
-    path('api/v3/transactions/', include('transactions.api.v3.urls'), name = 'transaction_api_v3'),
-
 ]
