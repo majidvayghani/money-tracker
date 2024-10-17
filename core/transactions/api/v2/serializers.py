@@ -1,27 +1,55 @@
-# transactions/serializers.py
-from rest_framework import serializers
-from ...models import Transaction
-
+from rest_framework import serializers 
+from transactions.models import Transaction 
+  
 class TransactionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Transaction
-        fields = ['_id', '_profile', 'amount', 'category', 'description', 'tag']
-        read_only_fields = ['_id', '_profile']
+    origin  = serializers.SerializerMethodField()
 
+    class Meta: 
+        model = Transaction 
+        fields = ['amount','description', 'category', 'created_at', 'deleted_at', '_user', 'origin']
+
+        read_only_fields = ['_user', 'created_at', 'deleted_at', 'origin']
+
+    def get_origin(self, obj):
+        # Access context to modify extra_field dynamically
+        return self.context.get('origin', 'db')
+         
+
+    def validate_amount(self, value):
+        """validation methods"""
+        if value <= 0:
+          raise serializers.ValidationError("Amount must be greater than zero.")
+        return value
+    
     def create(self, validated_data):
         """
-        Overriding the create method to assign the profile from the request context.
+        Create a Transaction instance, associating it with the authenticated user.
         """
-        _profile = self.context['request'].user.profile
-        return Transaction.objects.create(_profile=_profile, **validated_data)
+        user = self.context.get('user')
+        if not user:
+            raise serializers.ValidationError("User must be provided in the context.")
+        return Transaction.objects.create(_user=user, **validated_data)
+    
+class TransactionCreateSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Transaction 
+        fields = ['amount','description', 'category', 'created_at', 'deleted_at', '_user']
 
-    def update(self, instance, validated_data):
+        read_only_fields = ['_user', 'created_at', 'deleted_at']
+
+
+    def validate_amount(self, value):
+        """validation methods"""
+        if value <= 0:
+          raise serializers.ValidationError("Amount must be greater than zero.")
+        return value
+    
+    def create(self, validated_data):
         """
-        Overriding the update method for partial update of transaction.
+        Create a Transaction instance, associating it with the authenticated user.
         """
-        instance.amount = validated_data.get('amount', instance.amount)
-        instance.category = validated_data.get('category', instance.category)
-        instance.description = validated_data.get('description', instance.description)
-        instance.tag = validated_data.get('tag', instance.tag)
-        instance.save()
-        return instance
+        user = self.context.get('user')
+        if not user:
+            raise serializers.ValidationError("User must be provided in the context.")
+        return Transaction.objects.create(_user=user, **validated_data)
+    

@@ -1,48 +1,41 @@
-# transactions/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from rest_framework.exceptions import NotFound
 
+from transactions.models import Transaction
+from .serializers import TransactionSerializer, TransactionCreateSerializer
+from .cache_key import get_transaction_key as generator
 
-from ...models import Transaction
-from .serializers import TransactionSerializer
-from .permissions import IsProfileOwner
+User = get_user_model()
 
-class TransactionListCreateView(APIView):
+
+class TransactionCreateView(APIView):
     permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        """
-        List all transactions for the authenticated user's profile.
-        """
-        transactions = Transaction.objects.filter(_profile=request.user.profile)
-        serializer = TransactionSerializer(transactions, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    """
+        create a transaction and it doesn't cached
+    """
 
     def post(self, request):
         """
-        Create a new transaction linked to the authenticated user's profile.
+        Create a new transaction linked to the authenticated user
         """
-        serializer = TransactionSerializer(data=request.data, context={'request': request})
+        serializer = TransactionCreateSerializer(data=request.data, context={'user': request.user})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-      
-class TransactionDetailView(APIView):
-    permission_classes = [IsAuthenticated, IsProfileOwner]
 
-    def get_object(self, pk):
-        """
-        Helper method to get the transaction object associated with the authenticated user's profile.
-        """
-        # ToDo: Is it necessary to check the permission here again?
-        return get_object_or_404(Transaction, _id=pk)
+class TransactionDetail(APIView):
+    """
+        Retrieve, Update or Delete a transaction
+    """
+    permission_classes = [IsAuthenticated]
 
     def is_deleted(self, object):
         """
@@ -54,50 +47,78 @@ class TransactionDetailView(APIView):
         
         # transaction is deleted
         return True
-            
-
-    def get(self, request, pk):
-        """
-        Retrieve a specific transaction by `_id`.
-        """
-        transaction = self.get_object(pk)
-        self.check_object_permissions(request, transaction) 
-        serializer = TransactionSerializer(transaction)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, pk):
-        """
-            Step 0: Find the transaction.
-            Step 1: Check whether the transaction is deleted or not.
-            Step 2: If Step 1 passes, then update the transaction.
-        """
-        transaction = self.get_object(pk)
-        self.check_object_permissions(request, transaction)
-        if self.is_deleted(transaction):
-            # Return a 404 response if the transaction is deleted
-            raise NotFound(detail="Transaction not found.")
-        else:
-            serializer = TransactionSerializer(transaction, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-    def delete(self, request, pk):
-        """
-            Step 0: Find the transaction.
-            Step 1: Check whether the transaction is deleted or not.
-            Step 2: If Step 1 passes, then delete the transaction.
-        """
-        transaction = self.get_object(pk)
-        self.check_object_permissions(request, transaction)
-
-        if self.is_deleted(transaction):
-            # Return a 404 response if the transaction is deleted
-            raise NotFound(detail="Transaction not found.")
-        else:
-            transaction.deleted_at = timezone.now()
-            transaction.save()
-            return Response({"message": "transaction is deleted"}, status=status.HTTP_202_ACCEPTED)
         
+    def get_object_from_db(self, transaction_id, key):
+        """
+            retrieve transaction from DB and cache it
+        """
+        try:
+            transaction = Transaction.objects.get(pk=transaction_id)
+            if self.is_deleted(transaction):
+                # Return a 404 response if the transaction is deleted
+                raise NotFound(detail="Transaction not found.")
+                
+            else:
+                cache.set(key, transaction)
+                return transaction
+            
+        except Transaction.DoesNotExist:
+            raise NotFound(detail="Transaction not found.")
+
+    def get_object_from_cache(self, key):
+        """
+            retrieve transaction from cache 
+        """
+        return cache.get(key)
+
+    def get(self, request, pk, format=None):
+        """
+            generate cache key and use it in get_object_from_cache and get_object_from_db 
+            cache key always is unique because user_id and transaction_id are unique
+            first try to retrieve object from cache
+            get_object_from_db will raise a NotFound exception if the transaction does not exist
+        """ 
+        key = generator(request.user._id, pk)
+        transaction = self.get_object_from_cache(key)
+
+        if transaction is not None:
+            serializer = TransactionSerializer(transaction, context={'origin': 'cache'})
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        else:
+            """
+                The transaction hasn't been cached
+            """
+            transaction = self.get_object_from_db(pk, key)
+            serializer = TransactionSerializer(transaction)
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+
+        # ToDo: create a method for this
+        # if User.get_user_id_by_email(request.user) != serializer.data['_user']:
+        #     return Response(status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request):
+        serializer = TransactionSerializer(data=request.data, context={'user': request.user})
+
+        if serializer.is_valid():
+            transaction = serializer.save()
+            key = generator(request.user._id, transaction._id)
+            cache.set(key, transaction)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        """
+            First retrieve the transaction from cache or database, then mark it as deleted by setting `deleted_at`.
+        """
+        key = generator(request.user._id, pk)
+        transaction = self.get_object_from_cache(key)
+
+        if transaction is None:
+            transaction = self.get_object_from_db(pk, key)
+
+        transaction.deleted_at = timezone.now()
+        transaction.save()
+        cache.delete(key)
+        
+        return Response({"message": "transaction is deleted(soft!)"}, status=status.HTTP_202_ACCEPTED)
