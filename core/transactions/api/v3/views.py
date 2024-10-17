@@ -8,10 +8,28 @@ from django.core.cache import cache
 from rest_framework.exceptions import NotFound
 
 from transactions.models import Transaction
-from .serializers import TransactionSerializer
+from .serializers import TransactionSerializer, TransactionCreateSerializer
 from .cache_key import get_transaction_key as generator
 
 User = get_user_model()
+
+
+class TransactionCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    """
+        create a transaction and it doesn't cached
+    """
+
+    def post(self, request):
+        """
+        Create a new transaction linked to the authenticated user
+        """
+        serializer = TransactionCreateSerializer(data=request.data, context={'user': request.user})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TransactionDetail(APIView):
     """
