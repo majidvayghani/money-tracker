@@ -55,20 +55,29 @@ class UserGetOrUpdateOrDeleteAPIView(APIView):
         user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     def put(self, request):
-        user = request.user
-        serializer = UserSerializer(user, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        """
+            change password or email
+        """
+        return Response({"message": "To Do"}, status=status.HTTP_302_FOUND)
+
 
     def delete(self, request, *args, **kwargs):
         return Response({"message": "User cannot be deleted"}, status=status.HTTP_403_FORBIDDEN)
 
 class ProfileGetOrUpdateOrDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
+
+    def is_deleted(self, object):
+        """
+            verify if the object has been deleted.
+        """
+        if object.deleted_at is None:
+            return False
+        # Object is deleted
+        return True
 
     def get_object(self):
         user = self.request.user
@@ -79,19 +88,27 @@ class ProfileGetOrUpdateOrDeleteAPIView(APIView):
 
     def get(self, request):
         profile = self.get_object()
-        serializer = ProfileSerializer(profile)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        if self.is_deleted(profile):
+            raise NotFound(detail="Profile not found.")
+        else:
+            serializer = ProfileSerializer(profile)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request):
         profile = self.get_object()
-        serializer = ProfileSerializer(profile, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if self.is_deleted(profile):
+            raise NotFound(detail="Profile not found.")
+        else:
+            serializer = ProfileSerializer(profile, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
         profile = self.get_object()  # Get the user's profile
-        profile.delete()  # Delete the profile
+        profile.deleted_at = timezone.now()
+        profile.save()  # save the profile
         return Response(status=status.HTTP_204_NO_CONTENT)
