@@ -4,16 +4,18 @@ A Django project based on Django Rest Framework with CBV (views,generic,viewset)
 ## Features
 
 - **CRUD for Transactions**
+- **CRUD for Profile**
 
-## Getting Started
-
-### Prerequisites
+## Prerequisites
 
 - Python 3.x
-- Docker (To Do)
+- Pytest
+- Redis
+- RabbitMQ
+- Docker
 - Git
 
-### Installation
+## Installation
 
 1. **Clone the repository:**
 
@@ -21,6 +23,7 @@ A Django project based on Django Rest Framework with CBV (views,generic,viewset)
    git clone https://github.com/majidvayghani/money-tracker.git
    cd money-tracker
    ```
+ 
 2. **Create a virtual environment:**
 
    ```bash
@@ -39,6 +42,75 @@ A Django project based on Django Rest Framework with CBV (views,generic,viewset)
     
     python3 manage.py migrate
     ```
+
+5. **Start Docker:**
+    
+    Make sure you have `Docker` installed. You can install it from [docs.docker.com/engine/instal](https://docs.docker.com/engine/install/):
+    ```bash
+    docker compose up
+    ```
+    After running docker compose up, make sure the containers are running.
+
+6. **How to Use redis:**
+
+    Make sure you don't have `Redis` installed on your local machine. If it's installed, make sure Redis on your local machine runs on a different port than the Redis service in Docker.
+
+    1. Open RedisInsight in your browser at http://127.0.0.1:5540.
+    2. Click Add Redis Database.
+    3. Enter the following details:
+        - Database Alias: Any name (e.g., "Local Redis").
+        - Host: redis (this is the service name in Docker Compose).
+        - Port: 6379.
+        - Password: Leave blank if you haven't set a password.
+    4. Click Add Redis Database.
+    5. Select the database and choose db1 (this is the database number specified in the Redis configuration settings)
+
+7. **How to Run Tests:**
+
+    ```bash
+    export DJANGO_SETTINGS_MODULE=your_project.settings.development
+    ```
+
+    To run all tests in the project, navigate to the project root directory and execute:
+    ```bash
+    pytest
+    ```
+
+    To run only the unit tests, use the following command:
+    ```bash
+    pytest -m "unit"
+    ```
+
+    To run only the integration tests, use this command:
+    ```bash
+    pytest -m "integration"
+    ```
+
+
+
+8. **Configuration:**
+    
+    Project follows a modular settings structure to manage different environments. The settings are divided into the following files:
+
+    - **settings.py**: Contains the base settings shared across all environments.
+    - **development.py**: Includes settings specific to the development environment, such as debug options and local databases.
+    - **production.py**: Holds settings for the production environment, optimized for security and performance.
+
+    ```bash
+    export DJANGO_SETTINGS_MODULE=my_project.settings.development #For development
+    export DJANGO_SETTINGS_MODULE=my_project.settings.production #For production
+    ```
+    To manage sensitive information and environment-specific settings, Create a `.env` file in the root directory of your project and add the necessary environment variables.(it is included in the `.gitignore`).
+    
+    Here’s an example:
+
+    ```env
+    DJANGO_SECRET_KEY='your_secret_key'
+    DJANGO_DEBUG=True
+    DJANGO_ALLOWED_HOSTS='localhost, 127.0.0.1'
+    REDIS_URL='redis://localhost:6379/1'
+    ```
+
 ## Linting and Code Style
 I have written a simple linter file. In this file, the `CodeStyleChecker` class checks three simple rules to ensure they are followed in my code. The `visit_FunctionDef()` method checks rules 1 and 2, while the `visit_ClassDef()` method checks rule 3. For simplicity, you can specify which files the linter should analyze at the beginning.
 
@@ -53,37 +125,51 @@ Simply execute the `run_linter.py` file, which is a Python script. This script w
 
 ## API Endpoints
 
-The following table summarizes the available API endpoints for managing transactions.
+The table below summarizes some of the available API endpoints for managing transactions and users.
 
 | **Method** | **Endpoint**                | **Description**                         |
 |------------|-----------------------------|-----------------------------------------|
-| POST       | `/api/v1/transactions/`     | Create a new transaction                |
-| GET        | `/api/v1/transactions/`     | Retrieve all transactions               |
-| GET        | `/api/v1/transactions/{id}/` | Retrieve a specific transaction by ID   |
-| PUT        | `/api/v1/transactions/{id}/` | Update an existing transaction          |
-| DELETE     | `/api/v1/transactions/{id}/` | Delete a transaction                    |
-
-The following table summarizes the available API endpoints for registration.
+| POST       | `/api/v2/transactions/`     | Create a new transaction                |
+| GET        | `/api/v2/transactions/{id}/` | Retrieve a specific transaction by ID   |
+| PUT        | `/api/v2/transactions/{id}/` | Update an existing transaction          |
+| DELETE     | `/api/v2/transactions/{id}/` | Delete a transaction                    |
 
 | **Method** | **Endpoint**                | **Description**                         |
 |------------|-----------------------------|-----------------------------------------|
-| POST       | `/api/v1/auth/register/`     | Create a new user                |
-| POST        | `/api/v1/auth/signin/`       | signin                            |
-
-
+| POST       | `/api/v2/signup`      | Create a new user                |
+| POST       | `/api/v2/signin`      | signin                            |
+| POST       | `/api/v2/signout`     | signout                          |
+| GET/PUT/DELETE       | `/api/v2/user`        | Retrieve, update(email&password) and delete a user                            |
+| GET/PUT/DELETE       | `/api/v2/profile`      | Retrieve, update and delete a profile
 
 ## Here are simple curl commands for GET and POST requests:
 
-### Get All Transactions
+### Logout
+```bash
+curl --location --request POST '127.0.0.1:8000/api/v2/signout' \
+--header 'Authorization: Token <token>>'
+```
+
+### Update the Profile
 
 ```bash
-curl -X GET http://localhost:8000/api/v1/transactions/ -H "Content-Type: application/json"
+curl --location --request PUT 'http://127.0.0.1:8000/api/v2/profile' \
+--header 'Authorization: Token <token>' \
+--header 'Content-Type: application/json' \
+--data '{
+"first_name": "first_name",
+"last_name": "last_name"
+}'
+```
+
+### Get All Transactions
+```bash
+curl -X GET http://localhost:8000/api/v2/transactions/ -H "Content-Type: application/json"
 ```
 
 ### Create a New Transaction
-
 ```bash
-curl -X POST http://localhost:8000/api/v1/transactions/ \
+curl -X POST http://localhost:8000/api/v2/transactions/ \
 -H "Content-Type: application/json" \
 -d '{
   "amount": 50.0,
@@ -94,6 +180,18 @@ curl -X POST http://localhost:8000/api/v1/transactions/ \
 ```
 
 ## To Do
-- [ ] Modify the signIn API code to perform a single database query for all checks.
-- [ ] Generate HTML version of swagger api doc `redocly build-docs my-swagger.yml -o docs.html`
-- [ ] How to run unit tests and integration tests
+- [ ] Update linter: remove extra spaces and ...
+- [ ] Implement permissions to manage user access
+- [ ] Write more unit tests for the models, views and other components
+- [ ] Write additional integration tests for further evaluation of the project
+- [ ] Generate HTML version of swagger api doc: `redocly build-docs my-swagger.yml -o docs.html`
+- [ ] Update Swagger for the new routes
+- [x] How to run unit tests and integration tests
+- [ ] Finish the project logic and check for possible errors. Also, write suitable responses.
+- [ ] Change the database to PostgreSQL.
+- [ ] Rate Limiter
+- [ ] RabbitMQ
+
+
+
+
