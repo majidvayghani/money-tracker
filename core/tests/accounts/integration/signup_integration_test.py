@@ -9,19 +9,15 @@ def test_signup_success(api_client) -> None:
     Test the signup API   
     """  
     payload = {
-        "email" : "majid@majid.com",
-        "password" : "Himajid@57",
-        "first_name" : "majid",
-        "last_name" : "majid"
+        "email" : "test@test.com",
+        "password" : "Test@1234"
     }
   
     url = 'http://127.0.0.1:8000/api/v2/users/signup'
 
     response = api_client.post(url, data=payload, format="json")  
     assert response.status_code == 201  
-    assert response.data["email"] == payload["email"]  
-    assert response.data["first_name"] == payload["first_name"]  
-    assert response.data["last_name"] == payload["last_name"]  
+    assert response.data["email"] == payload["email"]
 
 @pytest.mark.django_db  
 def test_signup_failure_duplicate_email(api_client) -> None:  
@@ -33,9 +29,7 @@ def test_signup_failure_duplicate_email(api_client) -> None:
     
     payload = {
         "email" : "test@test.com",
-        "password" : "Himajid@57",
-        "first_name" : "first_name",
-        "last_name" : "last_name"
+        "password" : "Test@1234"
     }
   
     url = 'http://127.0.0.1:8000/api/v2/users/signup'
@@ -64,9 +58,7 @@ def test_signup_failure_empty_password(api_client) -> None:
     
     payload = {
         "email" : "test@test.com",
-        "password" : "",
-        "first_name" : "first_name",
-        "last_name" : "last_name"
+        "password" : ""
     }
   
     url = 'http://127.0.0.1:8000/api/v2/users/signup'
@@ -88,9 +80,7 @@ def test_signup_failure_invalid_password(api_client) -> None:
     
     payload = {
         "email" : "test@test.com",
-        "password" : "123",
-        "first_name" : "first_name",
-        "last_name" : "last_name"
+        "password" : "123"
     }
   
     url = 'http://127.0.0.1:8000/api/v2/users/signup'

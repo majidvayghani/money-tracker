@@ -18,7 +18,7 @@ class CustomUserAdminTest(TestCase):
         self.assertEqual(admin_instance.model, User)
 
         # Check if list_display is correct
-        self.assertEqual(admin_instance.list_display, ("email", "is_staff", "is_active",))
+        self.assertEqual(admin_instance.list_display, ("email", '_id', "is_staff", "is_active",))
 
         # Check if list_filter is correct
         self.assertEqual(admin_instance.list_filter, ("email", "is_staff", "is_active",))
@@ -31,7 +31,7 @@ class CustomUserAdminTest(TestCase):
 
         # Check if fieldsets are set correctly
         expected_fieldsets = (
-            ('Accoount', {"fields": ("email", "password")}),
+            ('Accounts', {"fields": ("email", "password")}),
             ("Permissions", {"fields": ("is_staff", "is_active", "groups", "user_permissions")}),
         )
         self.assertEqual(admin_instance.fieldsets, expected_fieldsets)
