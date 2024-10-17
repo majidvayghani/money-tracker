@@ -11,8 +11,8 @@ class SignupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'password']
-    
-    
+
+
     def validate_password(self, value):
         # Password length validation
         if len(value) < 8:
@@ -35,7 +35,7 @@ class SignupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Password must contain at least one special character.")
         
         return value
-    
+
     # create_user is a method provided by the User model's manager (objects) in Django's authentication system
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)

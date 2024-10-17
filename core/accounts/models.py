@@ -31,7 +31,7 @@ class User (AbstractBaseUser, PermissionsMixin, Model):
             return user
         except cls.DoesNotExist:
             return None
-    
+
     @classmethod
     def get_user_id_by_email(cls, email):
         user = cls.get_user_by_email(email)
