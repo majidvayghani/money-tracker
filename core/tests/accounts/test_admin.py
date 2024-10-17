@@ -2,8 +2,8 @@ from django.test import TestCase
 from django.contrib.admin.sites import site
 from django.contrib.auth.admin import UserAdmin
 
-from ..models import User
-from ..admin import CustomUserAdmin
+from accounts.models import User
+from accounts.admin import CustomUserAdmin
 
 class CustomUserAdminTest(TestCase):
 

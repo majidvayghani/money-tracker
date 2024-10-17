@@ -3,11 +3,6 @@ from signin import retrieve_token
 
 # ToDO: Using a simple factory function or module to generate payload objects
 
-"""
-v2: api/v2 hasn't cache
-v3: api/v3 has cache
-"""
-
 # @pytest.mark.django_db  
 # def test_create_success_v2(api_client) -> None:
 #     """
@@ -20,7 +15,7 @@ v3: api/v3 has cache
           
 #     assert 1 == 1
 @pytest.mark.django_db  
-def test_create_success_v3(api_client) -> None:
+def test_create_success(api_client) -> None:
     """
     Test the Transaction API
     
@@ -37,7 +32,7 @@ def test_create_success_v3(api_client) -> None:
         "category" : "category"
     }
   
-    url = 'http://127.0.0.1:8000/api/v3/transactions/'
+    url = 'http://127.0.0.1:8000/api/v2/transactions/'
     api_client.credentials(HTTP_AUTHORIZATION=f"Token {token}")
 
     response = api_client.post(url, data=payload, format="json")  

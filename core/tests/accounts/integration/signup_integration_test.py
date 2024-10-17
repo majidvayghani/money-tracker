@@ -13,7 +13,7 @@ def test_signup_success(api_client) -> None:
         "password" : "Test@1234"
     }
   
-    url = 'http://127.0.0.1:8000/api/v2/users/signup'
+    url = 'http://127.0.0.1:8000/api/v2/signup'
 
     response = api_client.post(url, data=payload, format="json")  
     assert response.status_code == 201  
@@ -32,7 +32,7 @@ def test_signup_failure_duplicate_email(api_client) -> None:
         "password" : "Test@1234"
     }
   
-    url = 'http://127.0.0.1:8000/api/v2/users/signup'
+    url = 'http://127.0.0.1:8000/api/v2/signup'
 
     response1 = api_client.post(url, data=payload, format="json")
     response2 = api_client.post(url, data=payload, format="json")
@@ -61,7 +61,7 @@ def test_signup_failure_empty_password(api_client) -> None:
         "password" : ""
     }
   
-    url = 'http://127.0.0.1:8000/api/v2/users/signup'
+    url = 'http://127.0.0.1:8000/api/v2/signup'
 
     response = api_client.post(url, data=payload, format="json")
 
@@ -83,7 +83,7 @@ def test_signup_failure_invalid_password(api_client) -> None:
         "password" : "123"
     }
   
-    url = 'http://127.0.0.1:8000/api/v2/users/signup'
+    url = 'http://127.0.0.1:8000/api/v2/signup'
 
     response = api_client.post(url, data=payload, format="json")
 
