@@ -2,7 +2,7 @@ import pytest
 
 # ToDO: Using a simple factory function or module to generate payload objects
 
-
+@pytest.mark.integration
 @pytest.mark.django_db  
 def test_signup_success(api_client) -> None:  
     """  
@@ -19,6 +19,7 @@ def test_signup_success(api_client) -> None:
     assert response.status_code == 201  
     assert response.data["email"] == payload["email"]
 
+@pytest.mark.integration
 @pytest.mark.django_db  
 def test_signup_failure_duplicate_email(api_client) -> None:  
     """
@@ -49,6 +50,7 @@ def test_signup_failure_duplicate_email(api_client) -> None:
     assert response2.data['email'][0] == "user with this email already exists."
     assert response2.data['email'][0].code == 'unique'
 
+@pytest.mark.integration
 @pytest.mark.django_db  
 def test_signup_failure_empty_password(api_client) -> None:  
     """
@@ -68,6 +70,7 @@ def test_signup_failure_empty_password(api_client) -> None:
     assert response.status_code == 400
     # assert response.data['password'][0] == "Password must be at least 8 characters long"
 
+@pytest.mark.integration
 @pytest.mark.django_db  
 def test_signup_failure_invalid_password(api_client) -> None:  
     """

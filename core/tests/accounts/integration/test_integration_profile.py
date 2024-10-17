@@ -1,5 +1,6 @@
 import pytest
 
+@pytest.mark.integration
 @pytest.mark.django_db  
 def test_retrieve_profile_success(api_client) -> None:  
     """  

@@ -14,6 +14,7 @@ from signin import retrieve_token
 #     """  
           
 #     assert 1 == 1
+@pytest.mark.integration
 @pytest.mark.django_db  
 def test_create_success(api_client) -> None:
     """

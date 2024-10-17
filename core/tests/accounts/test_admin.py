@@ -1,17 +1,18 @@
 from django.test import TestCase
 from django.contrib.admin.sites import site
 from django.contrib.auth.admin import UserAdmin
+import pytest
 
 from accounts.models import User
 from accounts.admin import CustomUserAdmin
 
 class CustomUserAdminTest(TestCase):
-
+    @pytest.mark.unit
     def test_custom_user_admin_registration(self):
         # Check if the CustomUserAdmin is registered for the User model
         self.assertIn(User, site._registry)
         self.assertIsInstance(site._registry[User], CustomUserAdmin)
-
+    @pytest.mark.unit
     def test_custom_user_admin_attributes(self):
         # Ensure the CustomUserAdmin uses the correct model
         admin_instance = site._registry[User]
