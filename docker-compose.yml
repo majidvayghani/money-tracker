@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   redis:
     image: redis:latest
@@ -8,14 +6,14 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-
-  redisinsight:
-    image: redis/redisinsight:latest  
+ 
+  redis_insight:
+    image: redislabs/redisinsight:latest
     container_name: redis_insight
     ports:
-      - "5540:5540" 
+      - "5540:5540"
     environment:
-      - REDISINSIGHT_ENABLE_CORS=true 
+      - REDISINSIGHT_ENABLE_CORS=true
 
 volumes:
   redis_data:
