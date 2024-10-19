@@ -1,15 +1,16 @@
 import os
 from pathlib import Path
+from decouple import config
 
 # Base directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-secret-key')  # Use a strong secret key in production
-DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
+SECRET_KEY = config('DJANGO_SECRET_KEY', default='your-default-secret-key')  # Use a strong secret key in production
+DEBUG = config('DJANGO_DEBUG', default='False', cast=bool)
 
 # Allowed hosts
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='').split(',')
 
 LOCAL_APPS = [
     'transactions.apps.TransactionsConfig',
@@ -19,7 +20,7 @@ LOCAL_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
-    'health'
+    'health',
 ]
 
 # Application definition
@@ -113,5 +114,14 @@ REST_FRAMEWORK = {
     ],
 }
 
-# Custom setting
+# Custom setting with user model
 AUTH_USER_MODEL = "accounts.User"
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.example.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='your-email@example.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='your-email-password')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@example.com')
