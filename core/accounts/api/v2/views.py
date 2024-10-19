@@ -9,16 +9,20 @@ from django.contrib.auth import get_user_model
 from rest_framework.exceptions import NotFound
 
 from ...models import Profile
-from .serializers import SigninAuthTokenSerializer, SignupSerializer, UserSerializer, ProfileSerializer
+from .serializers import *
+from .rabbitmq import send_message
+
 
 User = get_user_model()
 
 class SignupAPIview(APIView):
     def post(self, request, *args, **kwargs):
         serializer = SignupSerializer(data=request.data)
-
+        queue = "signup_queue"
         if serializer.is_valid():
             serializer.save()
+            data = serializer.data
+            send_message(queue, data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
