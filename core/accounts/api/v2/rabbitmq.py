@@ -17,3 +17,15 @@ def send_email_message(queue, message):
     
     channel.basic_publish(exchange='', routing_key=queue, body=message, properties=properties)
     connection.close()
+
+def send_log_message(message):
+    connection, channel = get_rabbitmq_connection()
+    channel.exchange_declare(exchange='logs', exchange_type='fanout')
+    
+    message = json.dumps(message)
+    
+    # Set delivery properties with persistent delivery mode
+    properties = pika.BasicProperties(delivery_mode=pika.DeliveryMode.Persistent)
+
+    channel.basic_publish(exchange='logs', routing_key='', body=message, properties=properties)
+    connection.close()

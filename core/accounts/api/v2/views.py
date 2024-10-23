@@ -10,7 +10,7 @@ from rest_framework.exceptions import NotFound
 
 from ...models import Profile
 from .serializers import *
-from .rabbitmq import send_email_message
+from .rabbitmq import send_log_message, send_email_message
 
 
 User = get_user_model()
@@ -23,6 +23,7 @@ class SignupAPIview(APIView):
             serializer.save()
             data = serializer.data
             send_email_message(queue, data)
+            send_log_message(data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
