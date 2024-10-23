@@ -7,7 +7,7 @@ def get_rabbitmq_connection():
 
     return connection, channel
 
-def send_message(queue, message):
+def send_email_message(queue, message):
     connection, channel = get_rabbitmq_connection()
 
     channel.queue_declare(queue='queue', durable=True)
