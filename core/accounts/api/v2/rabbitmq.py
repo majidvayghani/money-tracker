@@ -25,6 +25,7 @@ def consume_message(queue, callback):
         callback(json.loads(body))
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
+    channel.basic_qos(prefetch_count=1)
     channel.basic_consume(queue=queue, on_message_callback=on_message)
     print(f" [*] Waiting for messages in queue '{queue}'. To exit press CTRL+C")
     channel.start_consuming()
