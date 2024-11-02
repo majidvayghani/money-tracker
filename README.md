@@ -1,6 +1,14 @@
 # money-tracker
 A Django project based on Django Rest Framework with CBV (views,generic,viewset)
 
+## Overview of Project Components and Information Flow
+This [Miro Diagram](/diagrams/miro.jpg) provides an overview of how all components of the project work together and how information flows between the client, API server, and database.
+
+
+
+## User Authentication and Transaction Flows
+The [User Authentication Flow](/diagrams/user-authentication(version1).png) covers the sign-up and sign-in processes, ensuring users can register and sign in using OAuth 2.0 tokens. The [Transaction Flow](/diagrams/transaction(version2).png) includes creating, updating, and retrieving transactions.
+
 ## Features
 
 - **CRUD for Transactions**
