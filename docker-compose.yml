@@ -15,5 +15,16 @@ services:
     environment:
       - REDISINSIGHT_ENABLE_CORS=true
 
+  rabbitmq:
+    container_name: 'rabbitmq'
+    image: 'rabbitmq:4.0-management'
+    environment:
+      RABBITMQ_DEFAULT_USER: 'guest'
+      RABBITMQ_DEFAULT_PASS: 'guest'
+      RABBITMQ_DEFAULT_VHOST: '/'
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+
 volumes:
   redis_data:

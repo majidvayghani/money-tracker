@@ -23,7 +23,7 @@ A Django project based on Django Rest Framework with CBV (views,generic,viewset)
    git clone https://github.com/majidvayghani/money-tracker.git
    cd money-tracker
    ```
- 
+
 2. **Create a virtual environment:**
 
    ```bash
@@ -86,9 +86,41 @@ A Django project based on Django Rest Framework with CBV (views,generic,viewset)
     pytest -m "integration"
     ```
 
+8. **How to Use RabbitMQ:**
 
+    Ensure RabbitMQ is running in your Docker setup. RabbitMQ should be configured in `docker compose.yml` file.
 
-8. **Configuration:**
+    The RabbitMQ setup for this project uses two main functionalities:
+    1. **Email Notification**: Sends a welcome email after a user signs up.
+    2. **Logging**: Logs the user's signup event to a file.
+        
+    #### Queues and Exchanges:
+
+    - **`signup_queue`**: This queue is used to send signup email notifications.
+    - **`logs` exchange**: A fanout exchange used for logging the user signups. The exchange broadcasts the log messages to multiple consumers.
+
+    The application declares a durable queue (`signup_queue`) and an exchange of type `fanout` for broadcasting log messages.
+
+    #### Consumers:
+
+    - **`Email Consumer`**: Listens to signup_queue and sends a welcome email to users after they sign up.
+    - **`Log Consumer`**: Logs user signup events by consuming messages from the logs exchange.
+
+    #### Running the Consumers:
+    ```bash
+    python consumers.py
+    ```
+
+    #### Managing the RabbitMQ Server:
+    You can monitor RabbitMQ queues and exchanges using the RabbitMQ Management UI if it's enabled. Access the UI by visiting:
+    
+    ```bash
+    http://localhost:15672
+    ```
+    - Default username: guest
+    - Default password: guest
+
+9. **Configuration:**
     
     Project follows a modular settings structure to manage different environments. The settings are divided into the following files:
 
@@ -104,12 +136,56 @@ A Django project based on Django Rest Framework with CBV (views,generic,viewset)
     
     Here’s an example:
 
-    ```env
+    ```bash
     DJANGO_SECRET_KEY='your_secret_key'
     DJANGO_DEBUG=True
     DJANGO_ALLOWED_HOSTS='localhost, 127.0.0.1'
     REDIS_URL='redis://localhost:6379/1'
     ```
+
+## Rate Limiting Middleware
+This middleware implements rate limiting for both authenticated and public API calls in a Django application
+
+### Key Features
+
+**Rate Limiting:** Enforces limits on the number of API calls based on user authentication status.
+
+**Public Routes**  Defines specific public routes that have their own rate limits. 
+- /api/v2/signin
+- /api/v2/signup
+- /admin
+
+**Rate Limits:**
+- Authenticated Users: 10 API calls per minute.
+- Unauthenticated Users and Public Routes: 5 API calls per minute.
+
+**Token Authentication** Utilizes token-based authentication to identify users and apply rate limits accordingly. In Django, middlewares execute before view-level authentication (such as DRF’s token authentication), so request.user might not be populated yet
+
+### Usage
+Install Middleware: Add the RateLimitMiddleware to your Django settings.
+    
+```bash
+MIDDLEWARE = [
+    ...
+    'core.middleware.RateLimitMiddleware',
+    ...
+]
+```
+
+### How It Works:
+- The middleware checks the request path to determine if it's a public route or requires authentication.
+- For public routes, it applies the RATE_LIMIT_PUBLIC limit.
+- For authenticated users, it applies the RATE_LIMIT_AUTHENTICATED limit.
+- If the rate limit is exceeded, a `429 Too Many Requests` response is returned.
+
+### Example Response
+
+```json
+{
+    "detail": "Rate limit exceeded. Try again later."
+}
+
+```
 
 ## Linting and Code Style
 I have written a simple linter file. In this file, the `CodeStyleChecker` class checks three simple rules to ensure they are followed in my code. The `visit_FunctionDef()` method checks rules 1 and 2, while the `visit_ClassDef()` method checks rule 3. For simplicity, you can specify which files the linter should analyze at the beginning.
