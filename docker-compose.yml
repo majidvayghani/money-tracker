@@ -1,4 +1,17 @@
 services:
+  postgres:
+    container_name: 'postgres'
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
   redis:
     image: redis:latest
     container_name: redis
@@ -28,3 +41,4 @@ services:
 
 volumes:
   redis_data:
+  postgres_data:
