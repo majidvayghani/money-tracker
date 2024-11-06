@@ -1,5 +1,5 @@
 services:
-  postgres:
+  db:
     container_name: 'postgres'
     image: postgres:16-alpine
     restart: always
@@ -11,6 +11,17 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+  
+  pgadmin:
+    container_name: 'pgadmin4'
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
 
   redis:
     image: redis:latest
