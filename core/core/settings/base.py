@@ -71,11 +71,15 @@ TEMPLATES = [
 # WSGI application
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database settings using SQLite
+# Database settings using PostgreSQL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),  # SQLite database file
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DATABASE_NAME'),
+        'USER': config('DATABASE_USER'),
+        'PASSWORD': config('DATABASE_PASSWORD'),
+        'HOST': config('DATABASE_HOST', 'localhost'),
+        'PORT': config('DATABASE_PORT', '5432'),
     }
 }
 
