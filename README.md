@@ -18,6 +18,8 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
 
 - Python 3.x
 - Pytest
+- PostgreSQL
+- pgAdmin4
 - Redis
 - RabbitMQ
 - Docker
@@ -59,7 +61,21 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
     ```
     After running docker compose up, make sure the containers are running.
 
-6. **How to Use redis:**
+6. **How to Access pgAdmin**
+    
+    Make sure you don't have `pgAdmin4` installed on your local machine. If it's installed, make sure pgAdmin4 on your local machine runs on a different port than the pgAdmin4 service in Docker.
+
+    1. Open pgAdmin4 in your browser at http://127.0.0.1:5050.
+    2. Click on Add New Server.
+    3. In the General tab, enter a name for the server (e.g., PostgreSQL).
+    4. Go to the Connection tab and set:
+        - Host: db (this is the service name defined in docker-compose.yml).
+        - Port: 5432.
+        - Username: from your db service environment.
+        - Password: from your db service environment.
+    5. Save and Connect.
+
+7. **How to Use redis:**
 
     Make sure you don't have `Redis` installed on your local machine. If it's installed, make sure Redis on your local machine runs on a different port than the Redis service in Docker.
 
@@ -73,7 +89,7 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
     4. Click Add Redis Database.
     5. Select the database and choose db1 (this is the database number specified in the Redis configuration settings)
 
-7. **How to Run Tests:**
+8. **How to Run Tests:**
 
     ```bash
     export DJANGO_SETTINGS_MODULE=your_project.settings.development
@@ -94,7 +110,7 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
     pytest -m "integration"
     ```
 
-8. **How to Use RabbitMQ:**
+9. **How to Use RabbitMQ:**
 
     Ensure RabbitMQ is running in your Docker setup. RabbitMQ should be configured in `docker compose.yml` file.
 
@@ -128,7 +144,7 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
     - Default username: guest
     - Default password: guest
 
-9. **Configuration:**
+10. **Configuration:**
     
     Project follows a modular settings structure to manage different environments. The settings are divided into the following files:
 
