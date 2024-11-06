@@ -272,9 +272,9 @@ curl -X POST http://localhost:8000/api/v2/transactions/ \
 - [ ] Update Swagger for the new routes
 - [x] How to run unit tests and integration tests
 - [ ] Finish the project logic and check for possible errors. Also, write suitable responses.
-- [ ] Change the database to PostgreSQL.
-- [ ] Rate Limiter
-- [ ] RabbitMQ
+- [x] Change the database to PostgreSQL.
+- [x] Rate Limiter
+- [x] RabbitMQ
 
 
 
