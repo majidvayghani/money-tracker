@@ -46,14 +46,21 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
     pip install -r requirements.txt
     ```
 
-4. **Apply migrations:**
+4. **Install Snyk CLI:**
+    ```bash
+    curl https://static.snyk.io/cli/latest/snyk-linux -o snyk
+    chmod +x ./snyk
+    mv ./snyk /usr/local/bin/ 
+    ```
+
+5. **Apply migrations:**
     ```bash
     python3 manage.py makemigrations
     
     python3 manage.py migrate
     ```
 
-5. **Start Docker:**
+6. **Start Docker:**
     
     Make sure you have `Docker` installed. You can install it from [docs.docker.com/engine/instal](https://docs.docker.com/engine/install/):
     ```bash
@@ -61,7 +68,7 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
     ```
     After running docker compose up, make sure the containers are running.
 
-6. **How to Access pgAdmin**
+7. **How to Access pgAdmin**
     
     Make sure you don't have `pgAdmin4` installed on your local machine. If it's installed, make sure pgAdmin4 on your local machine runs on a different port than the pgAdmin4 service in Docker.
 
@@ -75,7 +82,7 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
         - Password: from your db service environment.
     5. Save and Connect.
 
-7. **How to Use redis:**
+8. **How to Use redis:**
 
     Make sure you don't have `Redis` installed on your local machine. If it's installed, make sure Redis on your local machine runs on a different port than the Redis service in Docker.
 
@@ -89,7 +96,7 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
     4. Click Add Redis Database.
     5. Select the database and choose db1 (this is the database number specified in the Redis configuration settings)
 
-8. **How to Run Tests:**
+9. **How to Run Tests:**
 
     ```bash
     export DJANGO_SETTINGS_MODULE=your_project.settings.development
@@ -110,7 +117,7 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
     pytest -m "integration"
     ```
 
-9. **How to Use RabbitMQ:**
+10. **How to Use RabbitMQ:**
 
     Ensure RabbitMQ is running in your Docker setup. RabbitMQ should be configured in `docker compose.yml` file.
 
@@ -144,7 +151,7 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
     - Default username: guest
     - Default password: guest
 
-10. **Configuration:**
+11. **Configuration:**
     
     Project follows a modular settings structure to manage different environments. The settings are divided into the following files:
 
@@ -222,6 +229,18 @@ I have written a simple linter file. In this file, the `CodeStyleChecker` class 
 
 ### How to run the linter
 Simply execute the `run_linter.py` file, which is a Python script. This script will run on all files within the project folder that are listed in the 'TARGET_FILES' list. If any files do not adhere to the rules, the details will be 'log_filename', and finally, the log will be printed as output.
+
+## Security Vulnerability Scanning with Snyk
+This project uses [Snyk](https://snyk.io/) to help identify and fix security vulnerabilities in dependencies, containers, and infrastructure code. Before using Snyk to scan this project, make sure you have the Snyk CLI installed.
+Once Snyk CLI is installed, authenticate it by running:
+```bash
+snyk auth
+```
+This will open a browser window where you can log in or sign up for a free account.
+
+### Scanning the Project
+
+
 
 ## API Endpoints
 
