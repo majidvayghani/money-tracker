@@ -231,16 +231,63 @@ I have written a simple linter file. In this file, the `CodeStyleChecker` class 
 Simply execute the `run_linter.py` file, which is a Python script. This script will run on all files within the project folder that are listed in the 'TARGET_FILES' list. If any files do not adhere to the rules, the details will be 'log_filename', and finally, the log will be printed as output.
 
 ## Security Vulnerability Scanning with Snyk
-This project uses [Snyk](https://snyk.io/) to help identify and fix security vulnerabilities in dependencies, containers, and infrastructure code. Before using Snyk to scan this project, make sure you have the Snyk CLI installed.
-Once Snyk CLI is installed, authenticate it by running:
+This project uses [Snyk](https://snyk.io/) to help identify and fix security vulnerabilities in dependencies, containers, and infrastructure code.
+
+### Steps to Use Snyk:
+**1. Sign up and Log in to Snyk's website:**
+
+**2. Run the Following Command:** 
+After signing up or logging in, run the command below to authenticate your Snyk CLI.
 ```bash
 snyk auth
 ```
-This will open a browser window where you can log in or sign up for a free account.
+**Note:** You can also use the command without signing up or logging in first. However, you'll need to open the Snyk dashboard in a new browser window to complete the process.
 
-### Scanning the Project
+**3. Install Snyk CLI:** 
+```bash
+curl https://static.snyk.io/cli/latest/snyk-linux -o snyk
+chmod +x ./snyk
+mv ./snyk /usr/local/bin/ 
+```
+### Scan for security issues
+Navigate into your code’s directory: cd ~/projects/my-project/
+Refer to the instructions that follow on specific content types: open-source packages, source code, containers and IaC (Infrastructure as Code).
 
+**1. open-source packages**
 
+To scan your open-source packages for vulnerabilities ensure all dependencies are installed or there is a supported lockfile. Then, run:
+```bash
+snyk monitor
+```
+```snyk monitor``` Creates projects in your Snyk account to be continuously monitored for open-source vulnerabilities and license issues. View the latest snapshots and scan results in the Web UI, on the Projects page.
+
+**2. snyk code test**
+
+To scan your source code for vulnerabilities, ensure Snyk Code is enabled in Settings > Snyk Code. Then run:
+```bash
+snyk code test
+```
+
+```snyk code test``` Scans your source code for vulnerabilities introduced by your first party code.
+
+**3. Containers**
+
+To scan container images for vulnerabilities copy the command below and specify the container image by replacing <repository> and <tag>:
+```bash
+snyk container monitor <repository>:<tag>
+```
+```snyk container test``` Scans your container images for any known vulnerabilities.
+
+```snyk container monitor``` Captures the container image layers and dependencies and monitor for vulnerabilities. View the latest snapshots and scan results in the Web UI, on the Projects page.
+
+### Fixing Vulnerabilities
+Snyk provides an easy way to fix vulnerabilities automatically by upgrading the affected dependencies:
+```bash
+snyk fix
+```
+The ```snyk fix``` command is a powerful feature in the Snyk CLI that helps automatically resolve vulnerabilities in your project's dependencies. It modifies dependency management files (e.g., package.json for Node.js or requirements.txt for Python) to replace vulnerable packages with secure versions.
+
+**Note:** Backup Before Execution: Since this command makes changes to dependency files, it’s recommended to create a backup of your project before running it.
 
 ## API Endpoints
 
