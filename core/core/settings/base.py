@@ -46,6 +46,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # Add the custom middleware
     'core.middleware.RateLimitMiddleware',
+    'core.authenticationmiddleware.CustomAuthenticationMiddleware',
 ]
 
 # URL configuration
