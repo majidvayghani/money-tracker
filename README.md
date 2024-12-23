@@ -218,6 +218,13 @@ MIDDLEWARE = [
 
 ```
 
+## Logging
+The logging system in this project is configured to capture important events, errors, and debug information for better monitoring and debugging. Logs are generated for key actions, including user registration, sign-in, and other critical events.
+
+### Log Handlers
+Logs are directed to the console and a log file. The console handler displays log messages in the terminal during development, while the file handler stores them in ``app_name.log`` for future reference.
+
+
 ## Linting and Code Style
 I have written a simple linter file. In this file, the `CodeStyleChecker` class checks three simple rules to ensure they are followed in my code. The `visit_FunctionDef()` method checks rules 1 and 2, while the `visit_ClassDef()` method checks rule 3. For simplicity, you can specify which files the linter should analyze at the beginning.
 
