@@ -357,7 +357,9 @@ curl -X POST http://localhost:8000/api/v2/transactions/ \
 - [x] Change the database to PostgreSQL.
 - [x] Rate Limiter
 - [x] RabbitMQ
-
-
-
-
+- [x] Set Up Logging
+- [ ] Health Check Configuration (Use packages like django-health-check to monitor the database, message broker (RabbitMQ), and file system.)
+- [ ] Add Basic Monitoring Tools
+    - Implement basic metrics using the django-prometheus package
+    - Track request counts, response statuses, and request processing times
+- [ ] Log Analysis (Forward logs to tools like the ELK Stack or simpler tools like Graylog for analysis.)
