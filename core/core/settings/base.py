@@ -1,9 +1,17 @@
 import os
+# import json
+# import logstash
 from pathlib import Path
 from decouple import config
+# from logging.handlers import RotatingFileHandler
 
 # Base directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Ensure the logs directory exists
+LOG_PATH = config('LOG_PATH', default='./log/django.log')
+os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+
 
 # Security settings
 SECRET_KEY = config('DJANGO_SECRET_KEY', default='your-default-secret-key')  # Use a strong secret key in production
@@ -133,25 +141,15 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='your-email@example.com')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='your-email-password')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@example.com')
 
+# ELK Stack 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {name} {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
     'handlers': {
-        'log_account': {
+        'account_log': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'logs/account.log',
-            'formatter': 'verbose',
+            'filename': config('LOG_PATH')
         },
         'console': {
             'level': 'DEBUG',
@@ -161,9 +159,9 @@ LOGGING = {
     },
     'loggers': {
         'account': {
-            'handlers': ['log_account', 'console'],
+            'handlers': ['account_log', 'console'],
             'level': 'DEBUG',
-            'propagate': False,
+            'propagate': True,
         },
     },
 }
