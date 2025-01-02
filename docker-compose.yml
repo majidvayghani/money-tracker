@@ -70,7 +70,7 @@ services:
         until curl -s -X POST -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" http://elasticsearch:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
         echo "All done!";
 
-  elasticsearch:
+        elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.1
     container_name: elasticsearch
     volumes:
@@ -116,14 +116,17 @@ services:
     ports:
       - 127.0.0.1:5044:5044
     environment:
+      - LOG_PATH="${LOG_PATH}"
       - xpack.monitoring.enabled=false
       - ELASTIC_USER=elastic
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - ELASTIC_HOSTS=http://elasticsearch:9200
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./Log:/usr/share/logstash/Log
 
 volumes:
   redis_data:
   postgres_data:
   esdata:
+  Log:
