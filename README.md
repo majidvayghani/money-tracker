@@ -218,12 +218,88 @@ MIDDLEWARE = [
 
 ```
 
-## Logging
+## ELK Stack Configuration for Logging and Monitoring
+The ELK Stack (Elasticsearch, Logstash, and Kibana) is used to collect, process, and visualize log data.
+
 The logging system in this project is configured to capture important events, errors, and debug information for better monitoring and debugging. Logs are generated for key actions, including user registration, sign-in, and other critical events.
 
 ### Log Handlers
 Logs are directed to the console and a log file. The console handler displays log messages in the terminal during development, while the file handler stores them in ``app_name.log`` for future reference.
 
+### Architecture
+
+**1.** Elasticsearch: Stores and indexes log data.
+
+**2.** Logstash: Processes and forwards log data to Elasticsearch.
+
+**3.** Kibana: Visualizes the log data stored in Elasticsearch.
+
+### Users in ELK Stack
+``kibana_system User:``
+
+ - The ``kibana_system`` user is a predefined service account required for Kibana's internal operations.
+
+- It allows Kibana to:
+
+    - Authenticate with Elasticsearch.
+
+    - Perform backend tasks such as reading and writing to the .kibana index.
+
+- Why Define in Docker Compose?
+
+    - Kibana needs this user to start and function correctly.
+
+    - Since it is only used for internal communication, it is best defined during setup and not manually later.
+**Note:** This user cannot log in to Kibana and is strictly for system communication.
+
+``Admin User:``
+
+- To access Kibana's interface, you need a user with administrative privileges (e.g., ``superuser``).
+
+- Steps to create an admin user are provided in the "Configuration" section.
+
+- Why Not Define a superuser in Docker Compose?
+
+    - A superuser is required for administrative access to Kibana, but defining it in Docker Compose is less secure because sensitive credentials would be hardcoded in configuration files.
+
+### Configuration
+
+Add the following variables to your `.env` file:
+
+```ini
+# file paths
+APP_LOG_PATH = your_path
+
+# ElK credentials
+ELASTIC_PASSWORD=your_elastic_password
+KIBANA_PASSWORD=your_kibana_password
+```
+
+### Key Features
+**lasticsearch:** Runs on http://127.0.0.1:9200.
+
+**Kibana:** Accessible at http://127.0.0.1:5601.
+
+**Logstash:** Listens on http://127.0.0.1:5044 for logs. ( if in logstash.conf defined TCP inpt)
+
+### Running the ELK Stack
+```
+docker compose up -d
+```
+
+### Adding a Kibana's Superuser Manually:
+
+Access the Elasticsearch Container:
+```bash
+docker exec -it elasticsearch bash
+```
+
+Create a Superuser:
+```bash
+elasticsearch-users useradd <username> -p <password> -r superuser
+```
+
+**Note:** Use this credentials for log in to Kibana.
 
 ## Linting and Code Style
 I have written a simple linter file. In this file, the `CodeStyleChecker` class checks three simple rules to ensure they are followed in my code. The `visit_FunctionDef()` method checks rules 1 and 2, while the `visit_ClassDef()` method checks rule 3. For simplicity, you can specify which files the linter should analyze at the beginning.
