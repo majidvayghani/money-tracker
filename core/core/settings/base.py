@@ -145,16 +145,23 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@example.com')
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'detailed': {
+            'format': "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+            'datefmt': "%Y-%m-%d %H:%M:%S",
+        },
+    },
     'handlers': {
         'account_log': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
+            'formatter': 'detailed',
             'filename': config('LOG_PATH')
         },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': 'detailed',
         },
     },
     'loggers': {
