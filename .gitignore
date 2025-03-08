@@ -19,3 +19,9 @@ db.sqlite3
 
 # settings
 **/settings/.env
+
+# ELK
+esdata/
+
+# my files
+*.txt
