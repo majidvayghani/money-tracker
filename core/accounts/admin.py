@@ -19,10 +19,10 @@ class CustomUserAdmin(UserAdmin):
         (None, {"fields": ("email", "password2", "is_staff", "is_active", "groups", "user_permissions")}),
     )
 
-
+@admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     model = Profile
     list_display = ['_id', '_user', 'first_name', 'last_name']
 
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(Profile, ProfileAdmin)
+#admin.site.register(Profile, ProfileAdmin)
