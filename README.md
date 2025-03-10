@@ -11,160 +11,67 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
 
 ## Features
 
-- **CRUD for Transactions**
-- **CRUD for Profile**
+* **Transaction Management:**
+    * Create, view, update, and delete transactions.
+    * Categorize transactions for better tracking.
+* **User Management:**
+    * User registration and authentication via Rest API.
+    * Profile management.
+* **Security:**
+    * Rate limiting to prevent abuse.
+    * Security vulnerability scanning with Snyk.
+* **Monitoring and Logging:**
+    * Detailed logging and monitoring with the ELK stack.
+* **Linting and Code Style:**
+    * Enforces consistent code style and quality through automated linting.
+    * Ensures adherence to specific coding rules (function naming, API view naming,
 
 ## Prerequisites
 
-- Python 3.x
-- Pytest
-- PostgreSQL
-- pgAdmin4
-- Redis
-- RabbitMQ
-- Docker
-- Git
+**Runtime Prerequisites:**
 
-## Installation
+* Docker (with Docker Compose)
+* Python 3.8+
+* PostgreSQL
+* ELK Stack
+* Redis
+* RabbitMQ
 
-1. **Clone the repository:**
+**Development Prerequisites:**
 
-   ```bash
-   git clone https://github.com/majidvayghani/money-tracker.git
-   cd money-tracker
-   ```
+* Git
+* pytest
+* pgAdmin4
 
-2. **Create a virtual environment:**
+## Setup
 
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
-
-3. **Install dependencies:**
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/majidvayghani/money-tracker.git
+    ```
+2.  **Create a virtual environment:**
+    ```bash
+    python -m venv venv
+    ```
+3.  **Install dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
-
-4. **Install Snyk CLI:**
-    ```bash
-    curl https://static.snyk.io/cli/latest/snyk-linux -o snyk
-    chmod +x ./snyk
-    mv ./snyk /usr/local/bin/ 
-    ```
-
-5. **Apply migrations:**
+4.  **Apply migrations:**
     ```bash
     python3 manage.py makemigrations
-    
     python3 manage.py migrate
     ```
-
-6. **Start Docker:**
-    
-    Make sure you have `Docker` installed. You can install it from [docs.docker.com/engine/instal](https://docs.docker.com/engine/install/):
+5.  **Start Docker:**
+    Make sure you have `Docker` installed. You can install it from [docs.docker.com/engine/install](https://docs.docker.com/engine/install/):
     ```bash
-    docker compose up
-    ```
-    After running docker compose up, make sure the containers are running.
-
-7. **How to Access pgAdmin**
-    
-    Make sure you don't have `pgAdmin4` installed on your local machine. If it's installed, make sure pgAdmin4 on your local machine runs on a different port than the pgAdmin4 service in Docker.
-
-    1. Open pgAdmin4 in your browser at http://127.0.0.1:5050.
-    2. Click on Add New Server.
-    3. In the General tab, enter a name for the server (e.g., PostgreSQL).
-    4. Go to the Connection tab and set:
-        - Host: db (this is the service name defined in docker-compose.yml).
-        - Port: 5432.
-        - Username: from your db service environment.
-        - Password: from your db service environment.
-    5. Save and Connect.
-
-8. **How to Use redis:**
-
-    Make sure you don't have `Redis` installed on your local machine. If it's installed, make sure Redis on your local machine runs on a different port than the Redis service in Docker.
-
-    1. Open RedisInsight in your browser at http://127.0.0.1:5540.
-    2. Click Add Redis Database.
-    3. Enter the following details:
-        - Database Alias: Any name (e.g., "Local Redis").
-        - Host: redis (this is the service name in Docker Compose).
-        - Port: 6379.
-        - Password: Leave blank if you haven't set a password.
-    4. Click Add Redis Database.
-    5. Select the database and choose db1 (this is the database number specified in the Redis configuration settings)
-
-9. **How to Run Tests:**
-
-    ```bash
-    export DJANGO_SETTINGS_MODULE=your_project.settings.development
+    docker compose up -d
+    docker compose ps #Check that all containers are running.
     ```
 
-    To run all tests in the project, navigate to the project root directory and execute:
-    ```bash
-    pytest
-    ```
+6.  **Configuration:**
+    Create a `.env` file in the root directory of your project and add the necessary environment variables. (It is included in the `.gitignore`).
 
-    To run only the unit tests, use the following command:
-    ```bash
-    pytest -m "unit"
-    ```
-
-    To run only the integration tests, use this command:
-    ```bash
-    pytest -m "integration"
-    ```
-
-10. **How to Use RabbitMQ:**
-
-    Ensure RabbitMQ is running in your Docker setup. RabbitMQ should be configured in `docker compose.yml` file.
-
-    The RabbitMQ setup for this project uses two main functionalities:
-    1. **Email Notification**: Sends a welcome email after a user signs up.
-    2. **Logging**: Logs the user's signup event to a file.
-        
-    #### Queues and Exchanges:
-
-    - **`signup_queue`**: This queue is used to send signup email notifications.
-    - **`logs` exchange**: A fanout exchange used for logging the user signups. The exchange broadcasts the log messages to multiple consumers.
-
-    The application declares a durable queue (`signup_queue`) and an exchange of type `fanout` for broadcasting log messages.
-
-    #### Consumers:
-
-    - **`Email Consumer`**: Listens to signup_queue and sends a welcome email to users after they sign up.
-    - **`Log Consumer`**: Logs user signup events by consuming messages from the logs exchange.
-
-    #### Running the Consumers:
-    ```bash
-    python consumers.py
-    ```
-
-    #### Managing the RabbitMQ Server:
-    You can monitor RabbitMQ queues and exchanges using the RabbitMQ Management UI if it's enabled. Access the UI by visiting:
-    
-    ```bash
-    http://localhost:15672
-    ```
-    - Default username: guest
-    - Default password: guest
-
-11. **Configuration:**
-    
-    Project follows a modular settings structure to manage different environments. The settings are divided into the following files:
-
-    - **settings.py**: Contains the base settings shared across all environments.
-    - **development.py**: Includes settings specific to the development environment, such as debug options and local databases.
-    - **production.py**: Holds settings for the production environment, optimized for security and performance.
-
-    ```bash
-    export DJANGO_SETTINGS_MODULE=my_project.settings.development #For development
-    export DJANGO_SETTINGS_MODULE=my_project.settings.production #For production
-    ```
-    To manage sensitive information and environment-specific settings, Create a `.env` file in the root directory of your project and add the necessary environment variables.(it is included in the `.gitignore`).
-    
     Here’s an example:
 
     ```bash
@@ -174,7 +81,189 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
     REDIS_URL='redis://localhost:6379/1'
     ```
 
-## Rate Limiting Middleware
+    The project follows a modular settings structure to manage different environments. The settings are divided into the following files:
+
+    * `settings.py`: Contains the base settings shared across all environments.
+    * `development.py`: Includes settings specific to the development environment, such as debug options and local databases.
+    * `production.py`: Holds settings for the production environment, optimized for security and performance.
+
+    ```bash
+    export DJANGO_SETTINGS_MODULE=my_project.settings.development # For development
+    export DJANGO_SETTINGS_MODULE=my_project.settings.production # For production
+    ```
+
+7.  **Run the application:**
+    Navigate to the project root directory where `manage.py` is located and run the development server:
+
+    ```bash
+    cd money-tracker
+    python manage.py runserver
+    ```
+
+    The application will be accessible at `http://127.0.0.1:8000/` in your browser.
+
+## Usage
+
+### Connecting to pgAdmin
+
+Make sure you don't have `pgAdmin4` installed on your local machine. If it's installed, ensure that pgAdmin4 on your local machine runs on a different port than the pgAdmin4 service in Docker.
+
+1.  Open pgAdmin4 in your browser at http://127.0.0.1:5050.
+2.  Click on **Add New Server**.
+3.  In the **General** tab, enter a name for the server (e.g., PostgreSQL).
+4.  Go to the **Connection** tab and set:
+    * **Host**: db (this is the service name defined in `docker-compose.yml`).
+    * **Port**: 5432.
+    * **Username**: from your db service environment.
+    * **Password**: from your db service environment.
+5.  Save and Connect.
+
+### Using RedisInsight
+
+Make sure you don't have `Redis` installed on your local machine. If it's installed, ensure Redis on your local machine runs on a different port than the Redis service in Docker.
+
+1.  Open RedisInsight in your browser at http://127.0.0.1:5540.
+2.  Click **Add Redis Database**.
+3.  Enter the following details:
+    * **Database Alias**: Any name (e.g., "Local Redis").
+    * **Host**: redis (this is the service name in Docker Compose).
+    * **Port**: 6379.
+    * **Password**: Leave blank if you haven't set a password.
+4.  Click **Add Redis Database**.
+5.  Select the database and choose `db1` (this is the database number specified in the Redis configuration settings).
+
+### RabbitMQ Management
+
+Ensure RabbitMQ is running in your Docker setup. RabbitMQ should be configured in the `docker-compose.yml` file.
+
+The RabbitMQ setup for this project uses two main functionalities:
+
+1.  **Email Notification**: Sends a welcome email after a user signs up.
+2.  **Logging**: Logs the user's signup event to a file.
+
+#### Queues and Exchanges:
+
+* **`signup_queue`**: This queue is used to send signup email notifications.
+* **`logs` exchange**: A fanout exchange used for logging the user signups. The exchange broadcasts the log messages to multiple consumers.
+
+The application declares a durable queue (`signup_queue`) and an exchange of type `fanout` for broadcasting log messages.
+
+#### Consumers:
+
+* **`Email Consumer`**: Listens to `signup_queue` and sends a welcome email to users after they sign up.
+* **`Log Consumer`**: Logs user signup events by consuming messages from the logs exchange.
+
+#### Running the Consumers:
+
+```bash
+python consumers.py
+```
+
+### Managing the RabbitMQ Server:
+
+You can monitor RabbitMQ queues and exchanges using the RabbitMQ Management UI if it's enabled. Access the UI by visiting:
+
+```bash
+http://localhost:15672
+```
+
+- Default username: **guest**
+
+- Default password: **guest**
+
+## Testing
+
+```bash
+export DJANGO_SETTINGS_MODULE=your_project.settings.development
+```
+
+To run all tests in the project, navigate to the project root directory and execute:
+
+```bash
+pytest
+```
+
+To run only the unit tests, use the following command:
+
+```bash
+pytest -m "unit"
+```
+
+To run only the integration tests, use this command:
+
+```bash
+pytest -m "integration"
+```
+
+## Security
+
+### Security Vulnerability Scanning with Snyk
+
+This project uses [Snyk](https://snyk.io/) to help identify and fix security vulnerabilities in dependencies, containers, and infrastructure code.
+
+#### Steps to Use Snyk:
+
+1.  **Install Snyk CLI:**
+    ```bash
+    curl https://static.snyk.io/cli/latest/snyk-linux -o snyk
+    chmod +x ./snyk
+    mv ./snyk /usr/local/bin/
+    ```
+2.  **Sign up and Log in to Snyk's website:**
+3.  **Run the Following Command:**
+    After signing up or logging in, run the command below to authenticate your Snyk CLI.
+
+    ```bash
+    snyk auth
+    ```
+
+    **Note:** You can also use the command without signing up or logging in first. However, you'll need to open the Snyk dashboard in a new browser window to complete the process.
+
+4.  **Scan for security issues**
+
+    Navigate into your code’s directory: `cd ~/projects/my-project/`
+
+    Refer to the instructions that follow on specific content types: open-source packages, source code, containers and IaC (Infrastructure as Code).
+
+5. **open-source packages**
+
+    To scan your open-source packages for vulnerabilities ensure all dependencies are installed or there is a supported lockfile. Then, run:
+
+    ```bash
+    snyk monitor
+    ```
+    ```snyk monitor``` Creates projects in your Snyk account to be continuously monitored for open-source vulnerabilities and license issues. View the latest snapshots and scan results in the Web UI, on the Projects page.
+
+6. **snyk code test**
+
+    To scan your source code for vulnerabilities, ensure Snyk Code is enabled in Settings > Snyk Code. Then run:
+    ```bash
+    snyk code test
+    ```
+
+    ```snyk code test``` Scans your source code for vulnerabilities introduced by your first party code.
+
+7. **Containers**
+
+    To scan container images for vulnerabilities copy the command below and specify the container image by replacing <repository> and <tag>:
+    ```bash
+    snyk container monitor <repository>:<tag>
+    ```
+
+    ```snyk container test``` Scans your container images for any known vulnerabilities.
+
+    ```snyk container monitor``` Captures the container image layers and dependencies and monitor for vulnerabilities. View the latest snapshots and scan results in the Web UI, on the Projects page.
+
+8. **Fixing Vulnerabilities**
+    Snyk provides an easy way to fix vulnerabilities automatically by upgrading the affected dependencies:
+    ```bash
+    snyk fix
+    ```
+    The ```snyk fix``` command is a powerful feature in the Snyk CLI that helps automatically resolve vulnerabilities in your project's dependencies. It modifies dependency management files (e.g., package.json for Node.js or requirements.txt for Python) to replace vulnerable packages with secure versions.
+
+    **Note:** Backup Before Execution: Since this command makes changes to dependency files, it’s recommended to create a backup of your project before running it.
+
+### Rate Limiting Middleware
 This middleware implements rate limiting for both authenticated and public API calls in a Django application
 
 ### Key Features
@@ -313,65 +402,6 @@ I have written a simple linter file. In this file, the `CodeStyleChecker` class 
 ### How to run the linter
 Simply execute the `run_linter.py` file, which is a Python script. This script will run on all files within the project folder that are listed in the 'TARGET_FILES' list. If any files do not adhere to the rules, the details will be 'log_filename', and finally, the log will be printed as output.
 
-## Security Vulnerability Scanning with Snyk
-This project uses [Snyk](https://snyk.io/) to help identify and fix security vulnerabilities in dependencies, containers, and infrastructure code.
-
-### Steps to Use Snyk:
-**1. Sign up and Log in to Snyk's website:**
-
-**2. Run the Following Command:** 
-After signing up or logging in, run the command below to authenticate your Snyk CLI.
-```bash
-snyk auth
-```
-**Note:** You can also use the command without signing up or logging in first. However, you'll need to open the Snyk dashboard in a new browser window to complete the process.
-
-**3. Install Snyk CLI:** 
-```bash
-curl https://static.snyk.io/cli/latest/snyk-linux -o snyk
-chmod +x ./snyk
-mv ./snyk /usr/local/bin/ 
-```
-### Scan for security issues
-Navigate into your code’s directory: cd ~/projects/my-project/
-Refer to the instructions that follow on specific content types: open-source packages, source code, containers and IaC (Infrastructure as Code).
-
-**1. open-source packages**
-
-To scan your open-source packages for vulnerabilities ensure all dependencies are installed or there is a supported lockfile. Then, run:
-```bash
-snyk monitor
-```
-```snyk monitor``` Creates projects in your Snyk account to be continuously monitored for open-source vulnerabilities and license issues. View the latest snapshots and scan results in the Web UI, on the Projects page.
-
-**2. snyk code test**
-
-To scan your source code for vulnerabilities, ensure Snyk Code is enabled in Settings > Snyk Code. Then run:
-```bash
-snyk code test
-```
-
-```snyk code test``` Scans your source code for vulnerabilities introduced by your first party code.
-
-**3. Containers**
-
-To scan container images for vulnerabilities copy the command below and specify the container image by replacing <repository> and <tag>:
-```bash
-snyk container monitor <repository>:<tag>
-```
-```snyk container test``` Scans your container images for any known vulnerabilities.
-
-```snyk container monitor``` Captures the container image layers and dependencies and monitor for vulnerabilities. View the latest snapshots and scan results in the Web UI, on the Projects page.
-
-### Fixing Vulnerabilities
-Snyk provides an easy way to fix vulnerabilities automatically by upgrading the affected dependencies:
-```bash
-snyk fix
-```
-The ```snyk fix``` command is a powerful feature in the Snyk CLI that helps automatically resolve vulnerabilities in your project's dependencies. It modifies dependency management files (e.g., package.json for Node.js or requirements.txt for Python) to replace vulnerable packages with secure versions.
-
-**Note:** Backup Before Execution: Since this command makes changes to dependency files, it’s recommended to create a backup of your project before running it.
-
 ## API Endpoints
 
 The table below summarizes some of the available API endpoints for managing transactions and users.
@@ -429,6 +459,7 @@ curl -X POST http://localhost:8000/api/v2/transactions/ \
 ```
 
 ## To Do
+- [ ] Implement profile management
 - [ ] Update linter: remove extra spaces and ...
 - [ ] Implement permissions to manage user access
 - [ ] Write more unit tests for the models, views and other components
