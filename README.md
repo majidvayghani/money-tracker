@@ -471,14 +471,9 @@ curl -X POST http://localhost:8000/api/v2/transactions/ \
 
 ## To Do
 - [ ] Implement profile management
-- [ ] Update linter: remove extra spaces and ...
 - [ ] Implement permissions to manage user access
-- [ ] Write more unit tests for the models, views and other components
-- [ ] Write additional integration tests for further evaluation of the project
 - [ ] Generate HTML version of swagger api doc: `redocly build-docs my-swagger.yml -o docs.html`
-- [ ] Update Swagger for the new routes
 - [x] How to run unit tests and integration tests
-- [ ] Finish the project logic and check for possible errors. Also, write suitable responses.
 - [x] Change the database to PostgreSQL.
 - [x] Rate Limiter
 - [x] RabbitMQ
