@@ -125,6 +125,16 @@ services:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
       - ./Log:/usr/share/logstash/Log
 
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: swagger-ui
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./swagger.yml:/app/swagger.yml
+    environment:
+      SWAGGER_JSON: /app/swagger.yml
+
 volumes:
   redis_data:
   postgres_data:

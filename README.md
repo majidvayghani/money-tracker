@@ -17,6 +17,8 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
 * **User Management:**
     * User registration and authentication via Rest API.
     * Profile management.
+* **API Documentation:**
+    * Interactive API documentation with Swagger UI.
 * **Security:**
     * Rate limiting to prevent abuse.
     * Security vulnerability scanning with Snyk.
@@ -36,6 +38,7 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
 * ELK Stack
 * Redis
 * RabbitMQ
+* Swagger UI (with Docker Compose)
 
 **Development Prerequisites:**
 
@@ -103,6 +106,14 @@ The [User Authentication Flow](/diagrams/user-authentication(version1).png) cove
     The application will be accessible at `http://127.0.0.1:8000/` in your browser.
 
 ## Usage
+
+### Swagger UI
+
+This project includes Swagger UI for interactive API documentation. You can use it to view available endpoints, understand request/response formats. This provides a clearer understanding of its purpose. To access the Swagger UI, ensure your Docker containers are running and then navigate to:
+
+```bash
+http://localhost:8080
+```
 
 ### Connecting to pgAdmin
 
