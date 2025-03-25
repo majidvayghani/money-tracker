@@ -7,39 +7,59 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import NotFound
+import logging
 
 from ...models import Profile
 from .serializers import *
 from .rabbitmq import send_log_message, send_email_message
 
-
+logger = logging.getLogger('account')
 User = get_user_model()
 
 class SignupAPIview(APIView):
     def post(self, request, *args, **kwargs):
-        serializer = SignupSerializer(data=request.data)
-        queue = "signup_queue"
-        if serializer.is_valid():
-            serializer.save()
-            data = serializer.data
-            send_email_message(queue, data)
-            send_log_message(data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            logger.info("Received signup request: %s", request.data)
+            serializer = SignupSerializer(data=request.data)
+            queue = "signup_queue"
+
+            if serializer.is_valid():
+                serializer.save()
+                data = serializer.data
+                logger.info("User signup successful: %s", data)
+
+                send_email_message(queue, data)
+                logger.info("Email sent to queue: %s", queue)
+
+                send_log_message(data)
+                logger.info("Log message sent for data: %s", data)
+
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            logger.debug("Signup request validation failed: %s", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SigninAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
+        logger.info("Received signin request: %s", request.data['email'])
         user = User.get_user_by_email(request.data['email'])
         if (user is None) or (user.deleted_at):
+            logger.error('User not found!')
             return Response({'message': 'User not found!'}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = SigninAuthTokenSerializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-
+        try:
+            serializer = SigninAuthTokenSerializer(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            logger.error("Signin failed. errors: %s", str(serializer.errors))
+            raise e
         # ToDo: send user_id to Token
         user_email = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user_email)
+        try:
+            token, created = Token.objects.get_or_create(user=user_email)
+        except Exception as e:
+            logger.debug("Failed to create or retrieve token for user: %s. error: %s", user.email, str(e))
+            
+        logger.info("Signin successfully for user: %s", request.data['email'])
         return Response({
             'token': token.key,
             'email': user.email,
@@ -50,8 +70,12 @@ class SignoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            request.user.auth_token.delete()
+            logger.info("User signed out successfully")
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            logger.error("Error during user signout for %s", str(e))
 
 class UserGetOrUpdateOrDeleteAPIView(APIView):
     permission_classes = [IsAuthenticated]

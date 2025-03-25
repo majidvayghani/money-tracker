@@ -13,3 +13,5 @@ python-decouple==3.8
 pytz==2024.1
 redis==5.1.1
 sqlparse==0.5.1
+psycopg2-binary
+python-dotenv

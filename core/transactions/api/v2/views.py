@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from rest_framework.exceptions import NotFound
+import pybreaker
 
 from transactions.models import Transaction
 from .serializers import TransactionSerializer, TransactionCreateSerializer
@@ -13,13 +14,14 @@ from .cache_key import get_transaction_key as generator
 
 User = get_user_model()
 
+db_breaker = pybreaker.CircuitBreaker(fail_max=3, reset_timeout=30)
 
 class TransactionCreateView(APIView):
     permission_classes = [IsAuthenticated]
     """
         create a transaction and it doesn't cached
     """
-
+    @db_breaker
     def post(self, request):
         """
         Create a new transaction linked to the authenticated user
@@ -29,7 +31,6 @@ class TransactionCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class TransactionDetail(APIView):
     """
@@ -47,7 +48,8 @@ class TransactionDetail(APIView):
         
         # transaction is deleted
         return True
-        
+
+    @db_breaker
     def get_object_from_db(self, transaction_id, key):
         """
             retrieve transaction from DB and cache it
@@ -96,6 +98,7 @@ class TransactionDetail(APIView):
         # if User.get_user_id_by_email(request.user) != serializer.data['_user']:
         #     return Response(status=status.HTTP_403_FORBIDDEN)
 
+    @db_breaker
     def post(self, request):
         serializer = TransactionSerializer(data=request.data, context={'user': request.user})
 

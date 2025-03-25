@@ -1,5 +1,6 @@
 # Environments
 .venv
+.env
 
 # Django #
 *.log
@@ -19,3 +20,8 @@ db.sqlite3
 # settings
 **/settings/.env
 
+# ELK
+esdata/
+
+# my files
+*.txt

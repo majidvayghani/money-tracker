@@ -1,139 +1,80 @@
 # money-tracker
 A Django project based on Django Rest Framework with CBV (views,generic,viewset)
 
+## Overview of Project Components and Information Flow
+This [Miro Diagram](/diagrams/miro.jpg) provides an overview of how all components of the project work together and how information flows between the client, API server, and database.
+
+
+
+## User Authentication and Transaction Flows
+The [User Authentication Flow](/diagrams/user-authentication(version1).png) covers the sign-up and sign-in processes, ensuring users can register and sign in using OAuth 2.0 tokens. The [Transaction Flow](/diagrams/transaction(version2).png) includes creating, updating, and retrieving transactions.
+
 ## Features
 
-- **CRUD for Transactions**
-- **CRUD for Profile**
+* **Transaction Management:**
+    * Create, view, update, and delete transactions.
+    * Categorize transactions for better tracking.
+* **User Management:**
+    * User registration and authentication via Rest API.
+    * Profile management.
+* **API Documentation:**
+    * Interactive API documentation with Swagger UI.
+* **Security:**
+    * Rate limiting to prevent abuse.
+    * Security vulnerability scanning with Snyk.
+* **Monitoring and Logging:**
+    * Detailed logging and monitoring with the ELK stack.
+* **Linting and Code Style:**
+    * Enforces consistent code style and quality through automated linting.
+    * Ensures adherence to specific coding rules (function naming, API view naming,
 
 ## Prerequisites
 
-- Python 3.x
-- Pytest
-- Redis
-- RabbitMQ
-- Docker
-- Git
+**Runtime Prerequisites:**
 
-## Installation
+* Docker (with Docker Compose)
+* Python 3.8+
+* PostgreSQL
+* ELK Stack
+* Redis
+* RabbitMQ
+* Swagger UI (with Docker Compose)
 
-1. **Clone the repository:**
+**Development Prerequisites:**
 
-   ```bash
-   git clone https://github.com/majidvayghani/money-tracker.git
-   cd money-tracker
-   ```
+* Git
+* pytest
+* pgAdmin4
 
-2. **Create a virtual environment:**
+## Setup
 
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
-
-3. **Install dependencies:**
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/majidvayghani/money-tracker.git
+    ```
+2.  **Create a virtual environment:**
+    ```bash
+    python -m venv venv
+    ```
+3.  **Install dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
-
-4. **Apply migrations:**
+4.  **Apply migrations:**
     ```bash
     python3 manage.py makemigrations
-    
     python3 manage.py migrate
     ```
-
-5. **Start Docker:**
-    
-    Make sure you have `Docker` installed. You can install it from [docs.docker.com/engine/instal](https://docs.docker.com/engine/install/):
+5.  **Start Docker:**
+    Make sure you have `Docker` installed. You can install it from [docs.docker.com/engine/install](https://docs.docker.com/engine/install/):
     ```bash
-    docker compose up
-    ```
-    After running docker compose up, make sure the containers are running.
-
-6. **How to Use redis:**
-
-    Make sure you don't have `Redis` installed on your local machine. If it's installed, make sure Redis on your local machine runs on a different port than the Redis service in Docker.
-
-    1. Open RedisInsight in your browser at http://127.0.0.1:5540.
-    2. Click Add Redis Database.
-    3. Enter the following details:
-        - Database Alias: Any name (e.g., "Local Redis").
-        - Host: redis (this is the service name in Docker Compose).
-        - Port: 6379.
-        - Password: Leave blank if you haven't set a password.
-    4. Click Add Redis Database.
-    5. Select the database and choose db1 (this is the database number specified in the Redis configuration settings)
-
-7. **How to Run Tests:**
-
-    ```bash
-    export DJANGO_SETTINGS_MODULE=your_project.settings.development
+    docker compose up -d
+    docker compose ps #Check that all containers are running.
     ```
 
-    To run all tests in the project, navigate to the project root directory and execute:
-    ```bash
-    pytest
-    ```
+6.  **Configuration:**
+    Create a `.env` file in the root directory of your project and add the necessary environment variables. (It is included in the `.gitignore`).
 
-    To run only the unit tests, use the following command:
-    ```bash
-    pytest -m "unit"
-    ```
-
-    To run only the integration tests, use this command:
-    ```bash
-    pytest -m "integration"
-    ```
-
-8. **How to Use RabbitMQ:**
-
-    Ensure RabbitMQ is running in your Docker setup. RabbitMQ should be configured in `docker compose.yml` file.
-
-    The RabbitMQ setup for this project uses two main functionalities:
-    1. **Email Notification**: Sends a welcome email after a user signs up.
-    2. **Logging**: Logs the user's signup event to a file.
-        
-    #### Queues and Exchanges:
-
-    - **`signup_queue`**: This queue is used to send signup email notifications.
-    - **`logs` exchange**: A fanout exchange used for logging the user signups. The exchange broadcasts the log messages to multiple consumers.
-
-    The application declares a durable queue (`signup_queue`) and an exchange of type `fanout` for broadcasting log messages.
-
-    #### Consumers:
-
-    - **`Email Consumer`**: Listens to signup_queue and sends a welcome email to users after they sign up.
-    - **`Log Consumer`**: Logs user signup events by consuming messages from the logs exchange.
-
-    #### Running the Consumers:
-    ```bash
-    python consumers.py
-    ```
-
-    #### Managing the RabbitMQ Server:
-    You can monitor RabbitMQ queues and exchanges using the RabbitMQ Management UI if it's enabled. Access the UI by visiting:
-    
-    ```bash
-    http://localhost:15672
-    ```
-    - Default username: guest
-    - Default password: guest
-
-9. **Configuration:**
-    
-    Project follows a modular settings structure to manage different environments. The settings are divided into the following files:
-
-    - **settings.py**: Contains the base settings shared across all environments.
-    - **development.py**: Includes settings specific to the development environment, such as debug options and local databases.
-    - **production.py**: Holds settings for the production environment, optimized for security and performance.
-
-    ```bash
-    export DJANGO_SETTINGS_MODULE=my_project.settings.development #For development
-    export DJANGO_SETTINGS_MODULE=my_project.settings.production #For production
-    ```
-    To manage sensitive information and environment-specific settings, Create a `.env` file in the root directory of your project and add the necessary environment variables.(it is included in the `.gitignore`).
-    
     Here’s an example:
 
     ```bash
@@ -143,7 +84,197 @@ A Django project based on Django Rest Framework with CBV (views,generic,viewset)
     REDIS_URL='redis://localhost:6379/1'
     ```
 
-## Rate Limiting Middleware
+    The project follows a modular settings structure to manage different environments. The settings are divided into the following files:
+
+    * `settings.py`: Contains the base settings shared across all environments.
+    * `development.py`: Includes settings specific to the development environment, such as debug options and local databases.
+    * `production.py`: Holds settings for the production environment, optimized for security and performance.
+
+    ```bash
+    export DJANGO_SETTINGS_MODULE=my_project.settings.development # For development
+    export DJANGO_SETTINGS_MODULE=my_project.settings.production # For production
+    ```
+
+7.  **Run the application:**
+    Navigate to the project root directory where `manage.py` is located and run the development server:
+
+    ```bash
+    cd money-tracker
+    python manage.py runserver
+    ```
+
+    The application will be accessible at `http://127.0.0.1:8000/` in your browser.
+
+## Usage
+
+### Swagger UI
+
+This project includes Swagger UI for interactive API documentation. You can use it to view available endpoints, understand request/response formats. This provides a clearer understanding of its purpose. To access the Swagger UI, ensure your Docker containers are running and then navigate to:
+
+```bash
+http://localhost:8080
+```
+
+### Connecting to pgAdmin
+
+Make sure you don't have `pgAdmin4` installed on your local machine. If it's installed, ensure that pgAdmin4 on your local machine runs on a different port than the pgAdmin4 service in Docker.
+
+1.  Open pgAdmin4 in your browser at http://127.0.0.1:5050.
+2.  Click on **Add New Server**.
+3.  In the **General** tab, enter a name for the server (e.g., PostgreSQL).
+4.  Go to the **Connection** tab and set:
+    * **Host**: db (this is the service name defined in `docker-compose.yml`).
+    * **Port**: 5432.
+    * **Username**: from your db service environment.
+    * **Password**: from your db service environment.
+5.  Save and Connect.
+
+### Using RedisInsight
+
+Make sure you don't have `Redis` installed on your local machine. If it's installed, ensure Redis on your local machine runs on a different port than the Redis service in Docker.
+
+1.  Open RedisInsight in your browser at http://127.0.0.1:5540.
+2.  Click **Add Redis Database**.
+3.  Enter the following details:
+    * **Database Alias**: Any name (e.g., "Local Redis").
+    * **Host**: redis (this is the service name in Docker Compose).
+    * **Port**: 6379.
+    * **Password**: Leave blank if you haven't set a password.
+4.  Click **Add Redis Database**.
+5.  Select the database and choose `db1` (this is the database number specified in the Redis configuration settings).
+
+### RabbitMQ Management
+
+Ensure RabbitMQ is running in your Docker setup. RabbitMQ should be configured in the `docker-compose.yml` file.
+
+The RabbitMQ setup for this project uses two main functionalities:
+
+1.  **Email Notification**: Sends a welcome email after a user signs up.
+2.  **Logging**: Logs the user's signup event to a file.
+
+#### Queues and Exchanges:
+
+* **`signup_queue`**: This queue is used to send signup email notifications.
+* **`logs` exchange**: A fanout exchange used for logging the user signups. The exchange broadcasts the log messages to multiple consumers.
+
+The application declares a durable queue (`signup_queue`) and an exchange of type `fanout` for broadcasting log messages.
+
+#### Consumers:
+
+* **`Email Consumer`**: Listens to `signup_queue` and sends a welcome email to users after they sign up.
+* **`Log Consumer`**: Logs user signup events by consuming messages from the logs exchange.
+
+#### Running the Consumers:
+
+```bash
+python consumers.py
+```
+
+### Managing the RabbitMQ Server:
+
+You can monitor RabbitMQ queues and exchanges using the RabbitMQ Management UI if it's enabled. Access the UI by visiting:
+
+```bash
+http://localhost:15672
+```
+
+- Default username: **guest**
+
+- Default password: **guest**
+
+## Testing
+
+```bash
+export DJANGO_SETTINGS_MODULE=your_project.settings.development
+```
+
+To run all tests in the project, navigate to the project root directory and execute:
+
+```bash
+pytest
+```
+
+To run only the unit tests, use the following command:
+
+```bash
+pytest -m "unit"
+```
+
+To run only the integration tests, use this command:
+
+```bash
+pytest -m "integration"
+```
+
+## Security
+
+### Security Vulnerability Scanning with Snyk
+
+This project uses [Snyk](https://snyk.io/) to help identify and fix security vulnerabilities in dependencies, containers, and infrastructure code.
+
+#### Steps to Use Snyk:
+
+1.  **Install Snyk CLI:**
+    ```bash
+    curl https://static.snyk.io/cli/latest/snyk-linux -o snyk
+    chmod +x ./snyk
+    mv ./snyk /usr/local/bin/
+    ```
+2.  **Sign up and Log in to Snyk's website:**
+3.  **Run the Following Command:**
+    After signing up or logging in, run the command below to authenticate your Snyk CLI.
+
+    ```bash
+    snyk auth
+    ```
+
+    **Note:** You can also use the command without signing up or logging in first. However, you'll need to open the Snyk dashboard in a new browser window to complete the process.
+
+4.  **Scan for security issues**
+
+    Navigate into your code’s directory: `cd ~/projects/my-project/`
+
+    Refer to the instructions that follow on specific content types: open-source packages, source code, containers and IaC (Infrastructure as Code).
+
+5. **open-source packages**
+
+    To scan your open-source packages for vulnerabilities ensure all dependencies are installed or there is a supported lockfile. Then, run:
+
+    ```bash
+    snyk monitor
+    ```
+    ```snyk monitor``` Creates projects in your Snyk account to be continuously monitored for open-source vulnerabilities and license issues. View the latest snapshots and scan results in the Web UI, on the Projects page.
+
+6. **snyk code test**
+
+    To scan your source code for vulnerabilities, ensure Snyk Code is enabled in Settings > Snyk Code. Then run:
+    ```bash
+    snyk code test
+    ```
+
+    ```snyk code test``` Scans your source code for vulnerabilities introduced by your first party code.
+
+7. **Containers**
+
+    To scan container images for vulnerabilities copy the command below and specify the container image by replacing <repository> and <tag>:
+    ```bash
+    snyk container monitor <repository>:<tag>
+    ```
+
+    ```snyk container test``` Scans your container images for any known vulnerabilities.
+
+    ```snyk container monitor``` Captures the container image layers and dependencies and monitor for vulnerabilities. View the latest snapshots and scan results in the Web UI, on the Projects page.
+
+8. **Fixing Vulnerabilities**
+    Snyk provides an easy way to fix vulnerabilities automatically by upgrading the affected dependencies:
+    ```bash
+    snyk fix
+    ```
+    The ```snyk fix``` command is a powerful feature in the Snyk CLI that helps automatically resolve vulnerabilities in your project's dependencies. It modifies dependency management files (e.g., package.json for Node.js or requirements.txt for Python) to replace vulnerable packages with secure versions.
+
+    **Note:** Backup Before Execution: Since this command makes changes to dependency files, it’s recommended to create a backup of your project before running it.
+
+### Rate Limiting Middleware
 This middleware implements rate limiting for both authenticated and public API calls in a Django application
 
 ### Key Features
@@ -186,6 +317,89 @@ MIDDLEWARE = [
 }
 
 ```
+
+## ELK Stack Configuration for Logging and Monitoring
+The ELK Stack (Elasticsearch, Logstash, and Kibana) is used to collect, process, and visualize log data.
+
+The logging system in this project is configured to capture important events, errors, and debug information for better monitoring and debugging. Logs are generated for key actions, including user registration, sign-in, and other critical events.
+
+### Log Handlers
+Logs are directed to the console and a log file. The console handler displays log messages in the terminal during development, while the file handler stores them in ``app_name.log`` for future reference.
+
+### Architecture
+
+**1.** Elasticsearch: Stores and indexes log data.
+
+**2.** Logstash: Processes and forwards log data to Elasticsearch.
+
+**3.** Kibana: Visualizes the log data stored in Elasticsearch.
+
+### Users in ELK Stack
+``kibana_system User:``
+
+ - The ``kibana_system`` user is a predefined service account required for Kibana's internal operations.
+
+- It allows Kibana to:
+
+    - Authenticate with Elasticsearch.
+
+    - Perform backend tasks such as reading and writing to the .kibana index.
+
+- Why Define in Docker Compose?
+
+    - Kibana needs this user to start and function correctly.
+
+    - Since it is only used for internal communication, it is best defined during setup and not manually later.
+**Note:** This user cannot log in to Kibana and is strictly for system communication.
+
+``Admin User:``
+
+- To access Kibana's interface, you need a user with administrative privileges (e.g., ``superuser``).
+
+- Steps to create an admin user are provided in the "Configuration" section.
+
+- Why Not Define a superuser in Docker Compose?
+
+    - A superuser is required for administrative access to Kibana, but defining it in Docker Compose is less secure because sensitive credentials would be hardcoded in configuration files.
+
+### Configuration
+
+Add the following variables to your `.env` file:
+
+```ini
+# file paths
+APP_LOG_PATH = your_path
+
+# ElK credentials
+ELASTIC_PASSWORD=your_elastic_password
+KIBANA_PASSWORD=your_kibana_password
+```
+
+### Key Features
+**lasticsearch:** Runs on http://127.0.0.1:9200.
+
+**Kibana:** Accessible at http://127.0.0.1:5601.
+
+**Logstash:** Listens on http://127.0.0.1:5044 for logs. ( if in logstash.conf defined TCP inpt)
+
+### Running the ELK Stack
+```
+docker compose up -d
+```
+
+### Adding a Kibana's Superuser Manually:
+
+Access the Elasticsearch Container:
+```bash
+docker exec -it elasticsearch bash
+```
+
+Create a Superuser:
+```bash
+elasticsearch-users useradd <username> -p <password> -r superuser
+```
+
+**Note:** Use this credentials for log in to Kibana.
 
 ## Linting and Code Style
 I have written a simple linter file. In this file, the `CodeStyleChecker` class checks three simple rules to ensure they are followed in my code. The `visit_FunctionDef()` method checks rules 1 and 2, while the `visit_ClassDef()` method checks rule 3. For simplicity, you can specify which files the linter should analyze at the beginning.
@@ -256,18 +470,16 @@ curl -X POST http://localhost:8000/api/v2/transactions/ \
 ```
 
 ## To Do
-- [ ] Update linter: remove extra spaces and ...
+- [ ] Implement profile management
 - [ ] Implement permissions to manage user access
-- [ ] Write more unit tests for the models, views and other components
-- [ ] Write additional integration tests for further evaluation of the project
 - [ ] Generate HTML version of swagger api doc: `redocly build-docs my-swagger.yml -o docs.html`
-- [ ] Update Swagger for the new routes
 - [x] How to run unit tests and integration tests
-- [ ] Finish the project logic and check for possible errors. Also, write suitable responses.
-- [ ] Change the database to PostgreSQL.
-- [ ] Rate Limiter
-- [ ] RabbitMQ
-
-
-
-
+- [x] Change the database to PostgreSQL.
+- [x] Rate Limiter
+- [x] RabbitMQ
+- [x] Set Up Logging
+- [ ] Health Check Configuration (Use packages like django-health-check to monitor the database, message broker (RabbitMQ), and file system.)
+- [ ] Add Basic Monitoring Tools
+    - Implement basic metrics using the django-prometheus package
+    - Track request counts, response statuses, and request processing times
+- [ ] Log Analysis (Forward logs to tools like the ELK Stack or simpler tools like Graylog for analysis.)

@@ -1,9 +1,17 @@
 import os
+# import json
+# import logstash
 from pathlib import Path
 from decouple import config
+# from logging.handlers import RotatingFileHandler
 
 # Base directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Ensure the logs directory exists
+LOG_PATH = config('LOG_PATH', default='./log/django.log')
+os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+
 
 # Security settings
 SECRET_KEY = config('DJANGO_SECRET_KEY', default='your-default-secret-key')  # Use a strong secret key in production
@@ -46,6 +54,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # Add the custom middleware
     'core.middleware.RateLimitMiddleware',
+    'core.authenticationmiddleware.CustomAuthenticationMiddleware',
 ]
 
 # URL configuration
@@ -71,11 +80,15 @@ TEMPLATES = [
 # WSGI application
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database settings using SQLite
+# Database settings using PostgreSQL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),  # SQLite database file
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DATABASE_NAME'),
+        'USER': config('DATABASE_USER'),
+        'PASSWORD': config('DATABASE_PASSWORD'),
+        'HOST': config('DATABASE_HOST', 'localhost'),
+        'PORT': config('DATABASE_PORT', '5432'),
     }
 }
 
@@ -127,3 +140,35 @@ EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='your-email@example.com')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='your-email-password')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@example.com')
+
+# ELK Stack 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'detailed': {
+            'format': "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+            'datefmt': "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    'handlers': {
+        'account_log': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'detailed',
+            'filename': config('LOG_PATH')
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'detailed',
+        },
+    },
+    'loggers': {
+        'account': {
+            'handlers': ['account_log', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
