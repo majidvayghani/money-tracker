@@ -9,7 +9,7 @@ from core.utils.basemodel import Model
 from .managers import UserManager
 
 
-class User (AbstractBaseUser, PermissionsMixin, Model):
+class User(AbstractBaseUser, PermissionsMixin, Model):
     _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     is_staff = models.BooleanField(default=False)
@@ -21,7 +21,6 @@ class User (AbstractBaseUser, PermissionsMixin, Model):
     objects = UserManager()
 
     def __str__(self):
-        # return str(self._id)
         return self.email
     
     @classmethod
