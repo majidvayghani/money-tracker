@@ -23,6 +23,7 @@ ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='').split(',')
 LOCAL_APPS = [
     'transactions.apps.TransactionsConfig',
     'accounts.apps.AccountsConfig',
+    'tokens',
 ]
 
 THIRD_PARTY_APPS = [
