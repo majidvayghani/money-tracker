@@ -13,6 +13,7 @@ class Token(Model):
         on_delete=models.CASCADE,
         related_name='tokens'
     )
+    is_active = models.BooleanField(default=True)
     token = models.CharField(max_length=255, unique=True, editable=False)
     expired_at = models.DateTimeField()
 

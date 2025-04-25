@@ -7,13 +7,19 @@ class TimeStampable(models.Model):
         class Meta:
             abstract = True
 
-class SoftDeletes(models.Model):
-    deleted_at = models.DateTimeField(null=True)
+class SoftDelete(models.Model):
+    soft_deleted_at = models.DateTimeField(null=True)
+
+    class Meta:
+        abstract = True
+
+class HardDelete(models.Model):
+    hard_deleted_at = models.DateTimeField(null=True)
     
     class Meta:
         abstract = True
 
-class Model(TimeStampable, SoftDeletes, models.Model):
+class Model(TimeStampable, SoftDelete, HardDelete, models.Model):
     class Meta:
         """
             the abstract = True option in the Meta class of a model is 
