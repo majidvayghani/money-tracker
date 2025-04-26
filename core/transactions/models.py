@@ -1,10 +1,12 @@
 from django.db import models
 import uuid
 from django.contrib.auth import get_user_model
+from core.utils.basemodel import Model
+
 
 User = get_user_model()
 
-class TransactionCategory(models.Model):
+class TransactionCategory(Model):
     """
     Model for transaction categories.
     This model uses a tree structure to create nested categories.
@@ -19,7 +21,7 @@ class TransactionCategory(models.Model):
     def __str__(self):
         return self.name
 
-class Transaction(models.Model):
+class Transaction(Model):
     _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     _user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions')
     date = models.DateTimeField(auto_now_add=True)
