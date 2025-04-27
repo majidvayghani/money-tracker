@@ -1,14 +1,14 @@
 from rest_framework import serializers 
-from transactions.models import Transaction 
+from transactions.models import Transaction, TransactionCategory
   
 class TransactionSerializer(serializers.ModelSerializer):
     origin  = serializers.SerializerMethodField()
 
     class Meta: 
         model = Transaction 
-        fields = ['amount','description', 'category', 'created_at', 'deleted_at', '_user', 'origin']
+        fields = ['amount','description', '_category', 'created_at', 'soft_deleted_at', '_user', 'origin']
 
-        read_only_fields = ['_user', 'created_at', 'deleted_at', 'origin']
+        read_only_fields = ['_user', 'created_at', 'soft_deleted_at', 'origin']
 
     def get_origin(self, obj):
         # Access context to modify extra_field dynamically
@@ -33,9 +33,9 @@ class TransactionSerializer(serializers.ModelSerializer):
 class TransactionCreateSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Transaction 
-        fields = ['amount','description', 'category', 'created_at', 'deleted_at', '_user']
+        fields = ['amount','description', '_category', 'created_at', 'soft_deleted_at', '_user']
 
-        read_only_fields = ['_user', 'created_at', 'deleted_at']
+        read_only_fields = ['_user', 'created_at', 'soft_deleted_at']
 
 
     def validate_amount(self, value):
@@ -53,3 +53,7 @@ class TransactionCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("User must be provided in the context.")
         return Transaction.objects.create(_user=user, **validated_data)
     
+class TransactionCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransactionCategory
+        fields = ['_id', 'name', 'parent', 'is_income', 'is_expense']

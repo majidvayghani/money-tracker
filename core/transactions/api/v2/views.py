@@ -6,10 +6,13 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from rest_framework.exceptions import NotFound
+from django.shortcuts import get_object_or_404
 import pybreaker
 
-from transactions.models import Transaction
-from .serializers import TransactionSerializer, TransactionCreateSerializer
+
+from tokens.authentication import CustomTokenAuthentication
+from transactions.models import Transaction, TransactionCategory
+from .serializers import TransactionSerializer, TransactionCreateSerializer, TransactionCategorySerializer
 from .cache_key import get_transaction_key as generator
 
 User = get_user_model()
@@ -17,6 +20,7 @@ User = get_user_model()
 db_breaker = pybreaker.CircuitBreaker(fail_max=3, reset_timeout=30)
 
 class TransactionCreateView(APIView):
+    authentication_classes = [CustomTokenAuthentication]
     permission_classes = [IsAuthenticated]
     """
         create a transaction and it doesn't cached
@@ -33,17 +37,19 @@ class TransactionCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TransactionDetail(APIView):
+    authentication_classes = [CustomTokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     """
         Retrieve, Update or Delete a transaction
     """
-    permission_classes = [IsAuthenticated]
 
     def is_deleted(self, object):
         """
             verify if the object has been deleted.
             object can be any of project models
         """
-        if object.deleted_at is None:
+        if object.soft_deleted_at is None:
             return False
         
         # transaction is deleted
@@ -112,7 +118,7 @@ class TransactionDetail(APIView):
 
     def delete(self, request, pk, format=None):
         """
-            First retrieve the transaction from cache or database, then mark it as deleted by setting `deleted_at`.
+            First retrieve the transaction from cache or database, then mark it as deleted by setting `soft_deleted_at`.
         """
         key = generator(request.user._id, pk)
         transaction = self.get_object_from_cache(key)
@@ -120,8 +126,65 @@ class TransactionDetail(APIView):
         if transaction is None:
             transaction = self.get_object_from_db(pk, key)
 
-        transaction.deleted_at = timezone.now()
+        transaction.soft_deleted_at = timezone.now()
         transaction.save()
         cache.delete(key)
         
         return Response({"message": "transaction is deleted(soft!)"}, status=status.HTTP_202_ACCEPTED)
+
+class Category(APIView):
+    """
+    View for listing all transaction categories and creating new ones.
+    """
+    authentication_classes = [CustomTokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        categories = TransactionCategory.objects.all()
+        serializer = TransactionCategorySerializer(categories, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        serializer = TransactionCategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CategoryDetail(APIView):
+    """
+    View for retrieving, updating, and deleting a single transaction category.
+    """
+    authentication_classes = [CustomTokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self, pk):
+
+        try:
+            return TransactionCategory.objects.get(_id=pk)
+        except Exception as e:
+            raise NotFound(detail=str(e))
+
+    def get(self, request, pk, *args, **kwargs):
+        category = self.get_object(pk)
+        if category is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = TransactionCategorySerializer(category)
+        return Response(serializer.data)
+
+    # def put(self, request, pk, *args, **kwargs):
+    #     category = self.get_object(pk)
+    #     if category is None:
+    #         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+    #     serializer = TransactionCategorySerializer(category, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # def delete(self, request, pk, *args, **kwargs):
+    #     category = self.get_object(pk)
+    #     if category is None:
+    #         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+    #     category.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
