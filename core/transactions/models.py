@@ -15,8 +15,12 @@ class TransactionCategory(Model):
     _id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subcategories')
-    is_income = models.BooleanField(default=False)
-    is_expense = models.BooleanField(default=False)
+    CATEGORY_TYPES = (
+        ('income', 'Income'),
+        ('expense', 'Expense'),
+    )
+    category_type = models.CharField(max_length=10, choices=CATEGORY_TYPES, default='expense')
+
 
     def __str__(self):
         return self.name
